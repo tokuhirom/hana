@@ -42,11 +42,6 @@
             <version>1.7.6</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.6</version>
-        </dependency>
-        <dependency>
             <groupId>org.atteo</groupId>
             <artifactId>evo-inflector</artifactId>
             <version>1.0.1</version>
@@ -61,6 +56,11 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.7</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>groovy-all</artifactId>
+            <groupId>org.codehaus.groovy</groupId>
+            <version>2.0.5</version>
         </dependency>
     </dependencies>
 
@@ -77,5 +77,32 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>2.6.0-01</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>groovy-eclipse-compiler</artifactId>
+                <groupId>org.codehaus.groovy</groupId>
+                <version>2.6.0-01</version>
+                <extensions>true</extensions>
+            </plugin>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<version>2.15</version>
+	    </plugin>
+	</plugins>
     </build>
 </project>

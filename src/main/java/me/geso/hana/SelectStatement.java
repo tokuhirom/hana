@@ -80,7 +80,7 @@ public class SelectStatement<T extends AbstractRow> extends AbstractStatement {
         return statement;
     }
 
-    public String buildQuery() {
+    private String buildQuery() {
         StringBuilder buf = new StringBuilder();
         buf.append("SELECT * FROM ");
         buf.append(quote(table));

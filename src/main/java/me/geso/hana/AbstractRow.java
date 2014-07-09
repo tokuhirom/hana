@@ -73,6 +73,16 @@ public abstract class AbstractRow {
 		}
 	}
 
+	public void update() throws SQLException {
+		UpdateStatement update = new UpdateStatement(currentSession(), AbstractRow.getTableName(this.getClass()));
+		for (String column : this.dirtyColumns) {
+			update.set(column, this.getColumn(column));
+		}
+		PreparedStatement stmt = update.prepare(currentSession());
+		currentSession().logStatement(stmt);
+		stmt.executeUpdate();
+	}
+
 	abstract protected String getColumn(String column) throws SQLException;
 
 	abstract public String getTableName();

@@ -1,18 +1,28 @@
 package me.geso.hana.generator;
 
-public class Renderer {
-	private final StringBuilder buf = new StringBuilder();
-	
-	@Override
-	public String toString() {
-		return buf.toString();
-	}
+import java.sql.SQLException;
+import me.geso.dbinspector.Table;
 
-	public void appendf(String format, Object... args) {
-		buf.append(String.format(format, args));
-	}
+public abstract class Renderer {
 
-	public void append(String str) {
-		buf.append(str);
-	}
+    private final StringBuilder buf = new StringBuilder();
+
+    @Override
+    public String toString() {
+	return buf.toString();
+    }
+
+    public void appendf(String format, Object... args) {
+	buf.append(String.format(format, args));
+    }
+
+    public void appendfln(String format, Object... args) {
+	buf.append(String.format(format, args)).append("\n");
+    }
+
+    public void append(String str) {
+	buf.append(str);
+    }
+
+    public abstract String render() throws SQLException;
 }

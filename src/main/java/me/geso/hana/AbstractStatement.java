@@ -13,7 +13,6 @@ public class AbstractStatement {
 
 	// TODO Quote identifiers correctly.
 	public String quote(String ident) {
-		logger.info(ident);
 		return ident;
 	}
 }

@@ -7,6 +7,9 @@ package me.geso.hana;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -22,38 +25,48 @@ public class UpdateStatement {
     private final Map<String, String> where = new TreeMap<>();
 
     public UpdateStatement(HanaSession currentSession, String table) {
-        this.table = table;
+	this.table = table;
     }
 
     public void set(String column, String value) {
-        set.put(column, value);
+	set.put(column, value);
     }
 
     public void where(String column, String value) {
-        where.put(column, value);
+	where.put(column, value);
     }
 
     public PreparedStatement prepare(HanaSession session) throws SQLException {
-        StringBuilder buf = new StringBuilder();
-        buf.append("UPDATE ").append(session.quote(this.table)).append(" ");
-        // TODO we should care the NULL value
-        buf.append(set.keySet().stream().map(e -> {
-            return session.quote(e) + "=?";
-        }).collect(Collectors.joining(",")));
-        buf.append(" WHERE ");
-        buf.append(where.keySet().stream().map(e -> {
-            return "(" + session.quote(e) + "=?)";
-        }).collect(Collectors.joining(" AND ")));
+	final List<String> params = new ArrayList<>();
+	final StringBuilder buf = new StringBuilder();
+	buf.append("UPDATE ").append(session.quote(this.table)).append(" ");
+	buf.append(set.keySet().stream().map(column -> {
+	    if (column == null) {
+		return session.quote(column) + "=NULL";
+	    } else {
+		params.add(set.get(column));
+		return session.quote(column) + "=?";
+	    }
+	}).collect(Collectors.joining(",")));
+	buf.append(" WHERE ");
+	buf.append(where.keySet().stream().map(column -> {
+	    if (column == null) {
+		return "(" + session.quote(column) + " IS NULL)";
+	    } else {
+		params.add(where.get(column));
+		return "(" + session.quote(column) + "=?)";
+	    }
+	}).collect(Collectors.joining(" AND ")));
 
-        final PreparedStatement stmt = session.prepareStatement(table);
-        int i = 1;
-        for (String column : set.keySet()) {
-            stmt.setString(i++, set.get(column));
-        }
-        for (String column : where.keySet()) {
-            stmt.setString(i++, where.get(column));
-        }
-        return stmt;
+	final String sql = buf.toString();
+	final PreparedStatement stmt = session.prepareStatement(sql);
+
+	int parameterIndex = 1;
+	for (String val : params) {
+	    stmt.setString(parameterIndex++, val);
+	}
+
+	return stmt;
     }
 
 }

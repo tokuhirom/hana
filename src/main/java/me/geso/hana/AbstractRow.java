@@ -63,10 +63,10 @@ public abstract class AbstractRow {
 		DeleteStatement delete = new DeleteStatement(this.session,
 				this.getTableName());
 		for (String column : this.getPrimaryKeys()) {
-			delete.where(column, this.getColumn(column));
+			delete.whereEq(column, this.getColumn(column));
 		}
-		PreparedStatement stmt = delete.createPreparedStatement();
-		this.session.logStatement(stmt);
+		PreparedStatement stmt = delete.prepare();
+		HanaSession.logStatement(stmt);
 		int deleted = stmt.executeUpdate();
 		if (deleted != 1) {
 			throw new HanaException("Cannot delete statement: ");
@@ -79,7 +79,7 @@ public abstract class AbstractRow {
 			update.set(column, this.getColumn(column));
 		}
 		PreparedStatement stmt = update.prepare(currentSession());
-		currentSession().logStatement(stmt);
+		HanaSession.logStatement(stmt);
 		stmt.executeUpdate();
 	}
 

@@ -3,81 +3,73 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package me.geso.hana;
 
 import java.sql.PreparedStatement;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.sql.SQLException;
+import static me.geso.hana.Condition.eq;
+import me.geso.hana.row.Member;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  *
  * @author tokuhirom
  */
 public class DeleteStatementTest extends TestBase {
-	
-	public DeleteStatementTest() {
-	}
-	
-	@BeforeClass
-	public static void setUpClass() {
-	}
-	
-	@AfterClass
-	public static void tearDownClass() {
-	}
-	
-	@Before
-	public void setUp() {
-	}
-	
-	@After
-	public void tearDown() {
-	}
 
 	/**
 	 * Test of setComment method, of class DeleteStatement.
+	 *
+	 * @throws java.sql.SQLException
+	 * @throws me.geso.hana.HanaException
 	 */
 	@Test
-	public void testSetComment() {
-		System.out.println("setComment");
-		String comment = "";
-		DeleteStatement instance = null;
-		instance.setComment(comment);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
+	public void testSetComment() throws SQLException, HanaException {
+		// Delete all rows
+		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+			DeleteStatement delete = new DeleteStatement(session, "member");
+			PreparedStatement stmt = delete.prepare();
+			int affected = stmt.executeUpdate();
+			assertEquals("DELETE FROM \"member\"", this.getQuery(stmt));
+			assertEquals(0, affected);
+		}
+
+		// Delete selected row
+		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+			DeleteStatement delete = new DeleteStatement(session, "member").whereEq("email", "hoge");
+			PreparedStatement stmt = delete.prepare();
+			int affected = stmt.executeUpdate();
+			assertEquals("DELETE FROM \"member\" WHERE email=?", delete.renderQuery());
+			assertEquals(0, affected);
+		}
+
+		// Delete with NULL value
+		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+			// Insert dummy data
+			session.doQuery("INSERT INTO member (email) VALUES (NULL)");
+			session.doQuery("INSERT INTO member (email) VALUES ('hoge@fuga.com')");
+			assertEquals(2, session.search(Member.class).count());
+
+			// Member.name.eq(null)
+			DeleteStatement delete = new DeleteStatement(session, "member")
+					.where(eq("email", null));
+			PreparedStatement stmt = delete.prepare();
+			HanaSession.logStatement(stmt);
+			int affected = stmt.executeUpdate();
+			assertEquals("DELETE FROM \"member\" WHERE email IS NULL", delete.renderQuery());
+
+			// Deleted one row.
+			assertEquals(1, affected);
+			assertEquals(1, session.search(Member.class).count());
+
+//			session.dumpTable("member", System.out);
+		}
 	}
 
-	/**
-	 * Test of createPreparedStatement method, of class DeleteStatement.
-	 */
-	@Test
-	public void testCreatePreparedStatement() throws Exception {
-		System.out.println("createPreparedStatement");
-		DeleteStatement instance = null;
-		PreparedStatement expResult = null;
-		PreparedStatement result = instance.createPreparedStatement();
-		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
+	private String getQuery(PreparedStatement stmt) {
+		String statementText = stmt.toString();
+		return statementText.substring(statementText.indexOf(": ") + 2);
 	}
 
-	/**
-	 * Test of where method, of class DeleteStatement.
-	 */
-	@Test
-	public void testWhere() throws Exception {
-		System.out.println("where");
-		String column = "";
-		String value = "";
-		DeleteStatement instance = null;
-		instance.where(column, value);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-	
 }

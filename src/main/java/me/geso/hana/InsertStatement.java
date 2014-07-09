@@ -1,6 +1,5 @@
 package me.geso.hana;
 
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -10,27 +9,18 @@ public class InsertStatement {
 
     private final HanaSession session;
     private final String table;
-    private final Map<String, String> values = new LinkedHashMap<>();
+	private final Map<String, Object> values = new LinkedHashMap<>();
 
     public InsertStatement(HanaSession session, String table) {
         this.session = session;
         this.table = table;
     }
 
-    public InsertStatement value(String key, String value) {
+	public InsertStatement value(String key, Object value) {
         this.values.put(key, value);
         return this;
     }
 
-    public InsertStatement value(String key, Blob value) {
-        this.values.put(key, value.toString());
-        return this;
-    }
-
-    public InsertStatement value(String key, long value) {
-        this.values.put(key, "" + value);
-        return this;
-    }
 
     public PreparedStatement prepare() throws SQLException {
         StringBuilder buf = new StringBuilder();
@@ -59,7 +49,7 @@ public class InsertStatement {
 		// String identifierQuoteString = connection.getMetaData()
         // .getIdentifierQuoteString();
         for (int i = 0, l = keys.length; i < l; ++i) {
-            statement.setString(i + 1, values.get(keys[i]));
+			statement.setObject(i + 1, values.get(keys[i]));
         }
         return statement;
     }

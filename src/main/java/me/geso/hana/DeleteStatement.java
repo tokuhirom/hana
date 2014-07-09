@@ -4,55 +4,68 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.NonNull;
 
 public class DeleteStatement {
 
-    private final HanaSession session;
+	private final HanaSession session;
 
-    private final String table;
-    private final List<String> where = new ArrayList<>();
-    private final List<String> values = new ArrayList<>();
-    private String comment;
+	private final String table;
+	private Condition condition = null;
+	private String comment;
 
-    public DeleteStatement(HanaSession session, String table) {
-        this.session = session;
-        this.table = table;
-    }
+	/**
+	 * Create new instance.
+	 *
+	 * @param session
+	 * @param table
+	 */
+	public DeleteStatement(HanaSession session, String table) {
+		this.session = session;
+		this.table = table;
+	}
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
-    public PreparedStatement createPreparedStatement() throws SQLException {
-        StringBuilder buf = new StringBuilder();
-        if (comment != null) {
-            buf.append("/* ");
-            buf.append(comment);
-            buf.append(" */");
-        }
-        buf.append("DELETE FROM ");
-        buf.append(session.quoteIdentifier(table));
-        if (where.size() > 0) {
-            buf.append(" WHERE ");
-            where.stream().forEach((w) -> {
-                buf.append(w);
-            });
-        }
-        String sql = buf.toString();
+	public PreparedStatement prepare() throws SQLException, HanaException {
+		final String sql = renderQuery();
 
-        PreparedStatement stmt = session.getConnection()
-                .prepareStatement(sql);
-        for (int i = 0; i < values.size(); ++i) {
-            stmt.setString(i + 1, values.get(i));
-        }
+		PreparedStatement stmt = session.getConnection()
+				.prepareStatement(sql);
+		int parameterIndex = 1;
+		if (condition != null) {
+			for (Object value : condition.getParams()) {
+				stmt.setObject(parameterIndex++, value);
+			}
+		}
 
-        return stmt;
-    }
+		return stmt;
+	}
 
-	// TODO care long
-    public void where(String column, String value) throws SQLException {
-		// care null
-        where.add(session.quoteIdentifier(column) + "=?");
-        values.add(value);
-    }
+	String renderQuery() {
+		StringBuilder buf = new StringBuilder();
+		if (comment != null) {
+			buf.append("/* ");
+			buf.append(comment);
+			buf.append(" */");
+		}
+		buf.append("DELETE FROM ");
+		buf.append(session.quoteIdentifier(table));
+		if (condition != null) {
+			buf.append(" WHERE ");
+			buf.append(condition.getTerm());
+		}
+		return buf.toString();
+	}
+
+	public <T> DeleteStatement whereEq(String column, T value) throws SQLException {
+		return this.where(Condition.eq(column, value));
+	}
+
+	public <T> DeleteStatement where(@NonNull Condition<T> condition) throws SQLException {
+		this.condition = condition;
+		return this;
+	}
 }

@@ -7,7 +7,6 @@ package me.geso.hana;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class UpdateStatement {
 
 	private final String table;
 	private final Map<String, String> set = new TreeMap<>();
-	private final Map<String, String> where = new TreeMap<>();
+	private Condition condition = null;
 
 	public UpdateStatement(HanaSession currentSession, String table) {
 		this.table = table;
@@ -32,8 +31,8 @@ public class UpdateStatement {
 		set.put(column, value);
 	}
 
-	public void where(String column, String value) {
-		where.put(column, value);
+	public void where(Condition condition) {
+		this.condition = condition;
 	}
 
 	public PreparedStatement prepare(HanaSession session) throws SQLException {
@@ -48,15 +47,10 @@ public class UpdateStatement {
 				return session.quoteIdentifier(column) + "=?";
 			}
 		}).collect(Collectors.joining(",")));
-		buf.append(" WHERE ");
-		buf.append(where.keySet().stream().map(column -> {
-			if (column == null) {
-				return "(" + session.quoteIdentifier(column) + " IS NULL)";
-			} else {
-				params.add(where.get(column));
-				return "(" + session.quoteIdentifier(column) + "=?)";
-			}
-		}).collect(Collectors.joining(" AND ")));
+		if (condition != null) {
+			buf.append(" WHERE ");
+			buf.append(condition.getTerm());
+		}
 
 		final String sql = buf.toString();
 		final PreparedStatement stmt = session.prepareStatement(sql);

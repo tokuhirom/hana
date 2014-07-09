@@ -7,6 +7,7 @@ package me.geso.hana;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import static me.geso.hana.Condition.eq;
 import me.geso.hana.row.Member;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -41,6 +42,7 @@ public class SelectStatementTest extends TestBase {
 
 	/**
 	 * Test of stream method, of class SelectStatement.
+	 *
 	 * @throws java.lang.Exception
 	 */
 	@Test
@@ -63,6 +65,7 @@ public class SelectStatementTest extends TestBase {
 
 	/**
 	 * Test of first method, of class SelectStatement.
+	 *
 	 * @throws java.lang.Exception
 	 */
 	@Test
@@ -73,7 +76,7 @@ public class SelectStatementTest extends TestBase {
 			session.insert(m1);
 			session.insert(m2);
 
-			Optional<Member> got = session.search(Member.class).where("email=?", "hoge@example.com").first();
+			Optional<Member> got = session.search(Member.class).where(eq("email", "hoge@example.com")).first();
 			assertTrue(got.isPresent());
 			assertEquals(m1.getId(), got.get().getId());
 		}
@@ -100,7 +103,7 @@ public class SelectStatementTest extends TestBase {
 			session.insert(new Member().setEmail("fuga@example.com"));
 
 			assertEquals(2L, session.search(Member.class).count());
-			assertEquals(1L, session.search(Member.class).where("email=?", "fuga@example.com").count());
+			assertEquals(1L, session.search(Member.class).where(eq("email", "fuga@example.com")).count());
 		}
 	}
 

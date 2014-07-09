@@ -3,7 +3,6 @@ package me.geso.hana;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterators;
@@ -18,8 +17,7 @@ public class SelectStatement<T extends AbstractRow> {
 	private final String table;
 	private String orderBy = null;
 	private final Class<T> klass;
-	private final List<String> where = new ArrayList<>();
-	private final List<String> binds = new ArrayList<>();
+	private Condition condition = null;
 	private final HanaSession session;
 
 	public SelectStatement(HanaSession hanaSession, Class<T> klass) {
@@ -47,15 +45,8 @@ public class SelectStatement<T extends AbstractRow> {
 		return this;
 	}
 
-	public SelectStatement<T> where(String string, long id) {
-		this.where.add(string);
-		this.binds.add("" + id);
-		return this;
-	}
-
-	public SelectStatement<T> where(String string, String value) {
-		this.where.add(string);
-		this.binds.add(value);
+	public SelectStatement<T> where(Condition condition) {
+		this.condition = condition;
 		return this;
 	}
 
@@ -75,8 +66,11 @@ public class SelectStatement<T extends AbstractRow> {
 	private PreparedStatement prepare(String sql) throws SQLException {
 		PreparedStatement statement = this.session.getConnection()
 				.prepareStatement(sql);
-		for (int i = 0; i < this.binds.size(); ++i) {
-			statement.setString(i + 1, this.binds.get(i));
+		int parameterIndex = 1;
+		if (condition != null) {
+			for (Object param : condition.getParams()) {
+				statement.setObject(parameterIndex++, param);
+			}
 		}
 		return statement;
 	}
@@ -85,16 +79,9 @@ public class SelectStatement<T extends AbstractRow> {
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM ");
 		buf.append(this.session.quoteIdentifier(table));
-		if (where.size() > 0) {
+		if (condition != null) {
 			buf.append(" WHERE ");
-			for (int i = 0; i < where.size(); ++i) {
-				buf.append("(");
-				buf.append(where.get(i));
-				buf.append(")");
-				if (i != where.size() - 1) {
-					buf.append(" AND ");
-				}
-			}
+			buf.append(condition.getTerm());
 		}
 		if (orderBy != null) {
 			buf.append(" ORDER BY ");

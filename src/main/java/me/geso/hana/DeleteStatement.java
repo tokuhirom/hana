@@ -31,7 +31,7 @@ public class DeleteStatement {
             buf.append(" */");
         }
         buf.append("DELETE FROM ");
-        buf.append(session.quote(table));
+        buf.append(session.quoteIdentifier(table));
         if (where.size() > 0) {
             buf.append(" WHERE ");
             where.stream().forEach((w) -> {
@@ -49,8 +49,10 @@ public class DeleteStatement {
         return stmt;
     }
 
-    public void where(String column, String value) {
-        where.add(session.quote(column) + "=?");
+	// TODO care long
+    public void where(String column, String value) throws SQLException {
+		// care null
+        where.add(session.quoteIdentifier(column) + "=?");
         values.add(value);
     }
 }

@@ -7,7 +7,6 @@ package me.geso.hana;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import me.geso.hana.row.Member;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -42,6 +41,7 @@ public class SelectStatementTest extends TestBase {
 
 	/**
 	 * Test of stream method, of class SelectStatement.
+	 * @throws java.lang.Exception
 	 */
 	@Test
 	public void testStream() throws Exception {
@@ -63,6 +63,7 @@ public class SelectStatementTest extends TestBase {
 
 	/**
 	 * Test of first method, of class SelectStatement.
+	 * @throws java.lang.Exception
 	 */
 	@Test
 	public void testFirst() throws Exception {

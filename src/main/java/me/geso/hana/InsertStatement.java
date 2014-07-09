@@ -35,11 +35,11 @@ public class InsertStatement {
     public PreparedStatement prepare() throws SQLException {
         StringBuilder buf = new StringBuilder();
         buf.append("INSERT INTO ");
-        buf.append(session.quote(table));
+        buf.append(session.quoteIdentifier(table));
         buf.append(" (");
         String[] keys = values.keySet().stream().toArray(String[]::new);
         for (int i = 0, l = keys.length; i < l; ++i) {
-            buf.append(session.quote(keys[i]));
+            buf.append(session.quoteIdentifier(keys[i]));
             if (i != l - 1) {
                 buf.append(',');
             }

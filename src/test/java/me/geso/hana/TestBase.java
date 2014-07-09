@@ -16,8 +16,9 @@ public class TestBase {
 		Class.forName("org.h2.Driver");
 		conn = DriverManager
 				.getConnection("jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE");
+		conn.prepareStatement("DROP TABLE IF EXISTS member").executeUpdate();
 		conn.prepareStatement(
-				"CREATE TABLE IF NOT EXISTS member (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255) NOT NULL, created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED)")
+				"CREATE TABLE member (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255) NOT NULL, created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED)")
 				.execute();
 		conn.prepareStatement(
 				"CREATE TABLE IF NOT EXISTS blog (id INTEGER AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255), url VARCHAR(65535), member_id INTEGER UNSIGNED, created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED, FOREIGN KEY(member_id) REFERENCES member(id) ON DELETE CASCADE)")

@@ -9,14 +9,13 @@ import org.junit.Test;
 
 public class AbstractRowClassGeneratorTest extends TestBase {
 
-    @Test
-    public void test() throws ClassNotFoundException, SQLException, IOException {
-	Inspector inspector = new Inspector(conn);
-	Configuration configuration = new Configuration("me.geso.hana", "src/test/java");
-	RowClassSchemaGenerator generator = new RowClassSchemaGenerator(inspector,
-		configuration);
-	generator.generateAll();
-
-    }
+	@Test
+	public void test() throws ClassNotFoundException, SQLException, IOException {
+		Inspector inspector = new Inspector(conn);
+		Configuration configuration = new Configuration("me.geso.hana", "src/test/java");
+		RowClassSchemaGenerator generator = new RowClassSchemaGenerator(inspector,
+				configuration);
+		generator.generateAll();
+	}
 
 }

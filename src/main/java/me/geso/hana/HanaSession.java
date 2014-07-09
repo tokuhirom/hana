@@ -18,10 +18,12 @@ public class HanaSession implements AutoCloseable {
 
     @Getter
     private final Connection connection;
+	private final String identifierQuoteString;
 
     public HanaSession(HanaSessionFactory hana) throws SQLException {
         this.connection = DriverManager.getConnection(hana.getUrl(),
                 hana.getUser(), hana.getPassword());
+		this.identifierQuoteString = connection.getMetaData().getIdentifierQuoteString();
     }
 
     @Override
@@ -55,8 +57,7 @@ public class HanaSession implements AutoCloseable {
 
     // TODO: Dump with table generator like Text::SimpleTable
     public void dumpTable(String tableName, PrintStream os) throws SQLException {
-        // TODO quote identifier
-        String sql = "SELECT * FROM " + tableName;
+        String sql = "SELECT * FROM " + quoteIdentifier(tableName);
         PreparedStatement prepareStatement = this.connection
                 .prepareStatement(sql);
         ResultSet rs = prepareStatement.executeQuery();
@@ -76,12 +77,12 @@ public class HanaSession implements AutoCloseable {
         }
     }
 
-    public void logStatement(PreparedStatement stmt) {
+    public static void logStatement(PreparedStatement stmt) {
         logger.info(stmt.toString());
     }
 
-    public String quote(String table) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String quoteIdentifier(String ident) {
+        return Identifier.quote(ident, identifierQuoteString);
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {

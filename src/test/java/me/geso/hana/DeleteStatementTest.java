@@ -45,7 +45,7 @@ public class DeleteStatementTest extends TestBase {
 			DeleteStatement delete = new DeleteStatement(session, "member").whereEq("email", "fuga@example.com");
 			PreparedStatement stmt = delete.prepare();
 			int affected = stmt.executeUpdate();
-			assertEquals("DELETE FROM \"member\" WHERE email=?", delete.renderQuery());
+			assertEquals("DELETE FROM \"member\" WHERE \"email\"=?", delete.renderQuery());
 			assertEquals(1, affected);
 			assertEquals(2, countMember(session));
 		}
@@ -60,7 +60,7 @@ public class DeleteStatementTest extends TestBase {
 			PreparedStatement stmt = delete.prepare();
 			HanaSession.logStatement(stmt);
 			int affected = stmt.executeUpdate();
-			assertEquals("DELETE FROM \"member\" WHERE email IS NULL", delete.renderQuery());
+			assertEquals("DELETE FROM \"member\" WHERE \"email\" IS NULL", delete.renderQuery());
 
 			// Deleted one row.
 			assertEquals(1, affected);

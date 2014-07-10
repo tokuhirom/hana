@@ -9,7 +9,7 @@ public class DeleteStatement {
 	private final HanaSession session;
 
 	private final String table;
-	private Condition condition = null;
+	private ConditionInterface condition = null;
 	private String comment;
 
 	/**
@@ -53,7 +53,7 @@ public class DeleteStatement {
 		buf.append(session.quoteIdentifier(table));
 		if (condition != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm());
+			buf.append(condition.getTerm(session.getIdentifierQuoteString()));
 		}
 		return buf.toString();
 	}
@@ -62,7 +62,7 @@ public class DeleteStatement {
 		return this.where(Condition.eq(column, value));
 	}
 
-	public <T> DeleteStatement where(@NonNull Condition<T> condition) throws SQLException {
+	public <T> DeleteStatement where(@NonNull ConditionInterface condition) throws SQLException {
 		this.condition = condition;
 		return this;
 	}

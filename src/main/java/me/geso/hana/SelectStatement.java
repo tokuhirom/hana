@@ -17,7 +17,7 @@ public class SelectStatement<T extends AbstractRow> {
 	private final String table;
 	private String orderBy = null;
 	private final Class<T> klass;
-	private Condition condition = null;
+	private ConditionInterface condition = null;
 	private final HanaSession session;
 
 	public SelectStatement(HanaSession hanaSession, Class<T> klass) {
@@ -45,7 +45,7 @@ public class SelectStatement<T extends AbstractRow> {
 		return this;
 	}
 
-	public SelectStatement<T> where(Condition condition) {
+	public SelectStatement<T> where(ConditionInterface condition) {
 		this.condition = condition;
 		return this;
 	}
@@ -81,7 +81,7 @@ public class SelectStatement<T extends AbstractRow> {
 		buf.append(this.session.quoteIdentifier(table));
 		if (condition != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm());
+			buf.append(condition.getTerm(session.getIdentifierQuoteString()));
 		}
 		if (orderBy != null) {
 			buf.append(" ORDER BY ");

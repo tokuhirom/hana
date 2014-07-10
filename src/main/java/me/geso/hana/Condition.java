@@ -6,9 +6,9 @@
 package me.geso.hana;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.Getter;
 import lombok.NonNull;
 
 /**
@@ -18,40 +18,12 @@ import lombok.NonNull;
  */
 public class Condition<Value> {
 
-	@Getter
-	private final String term;
-
-	@Getter
-	final List<Value> params;
-
-	public Condition(String term) {
-		this.term = term;
-		this.params = new ArrayList<>();
+	public static ConditionInterface eq(String column, Object value) {
+		return new EqualsCondition(column, value);
 	}
 
-	private Condition(String term, List<Value> params) {
-		this.term = term;
-		this.params = params;
-	}
-
-	public static <Value> Condition eq(String column, Value value) {
-		if (value == null) {
-			return new Condition(column + " IS NULL");
-		} else {
-			List<Value> values = new ArrayList<>();
-			values.add(value);
-			return new Condition(column + "=?", values);
-		}
-	}
-
-	public static <Value> Condition ne(String column, Value value) {
-		if (value == null) {
-			return new Condition(column + " IS NOT NULL");
-		} else {
-			List<Value> values = new ArrayList<>();
-			values.add(value);
-			return new Condition(column + "!=?", values);
-		}
+	public static ConditionInterface ne(String column, Object value) {
+		return new NotEqualsCondition(column, value);
 	}
 
 	/**
@@ -62,10 +34,8 @@ public class Condition<Value> {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> Condition gt(String column, @NonNull Value value) {
-		List<Value> values = new ArrayList<>();
-		values.add(value);
-		return new Condition(column + ">?", values);
+	public static <Value> ConditionInterface gt(String column, @NonNull Value value) {
+		return new GraterThanCondition(column, value);
 	}
 
 	/**
@@ -76,10 +46,8 @@ public class Condition<Value> {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> Condition lt(String column, @NonNull Value value) {
-		List<Value> values = new ArrayList<>();
-		values.add(value);
-		return new Condition(column + "<?", values);
+	public static <Value> ConditionInterface lt(String column, @NonNull Value value) {
+		return new LessThanCondition(column, value);
 	}
 
 	/**
@@ -90,10 +58,8 @@ public class Condition<Value> {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> Condition ge(String column, @NonNull Value value) {
-		List<Value> values = new ArrayList<>();
-		values.add(value);
-		return new Condition(column + ">=?", values);
+	public static <Value> ConditionInterface ge(String column, @NonNull Value value) {
+		return new GraterThanOrEqualsCondition(column, value);
 	}
 
 	/**
@@ -104,10 +70,8 @@ public class Condition<Value> {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> Condition le(String column, @NonNull Value value) {
-		List<Value> values = new ArrayList<>();
-		values.add(value);
-		return new Condition(column + "<=?", values);
+	public static <Value> ConditionInterface le(String column, @NonNull Value value) {
+		return new LessThanOrEqualsCondition(column, value);
 	}
 
 	/**
@@ -120,74 +84,234 @@ public class Condition<Value> {
 	 * @param values
 	 * @return
 	 */
-	public static <Value> Condition in(String column, @NonNull List<Value> values) {
-		if (values.isEmpty()) {
-			return new Condition("1=0");
-		} else {
-			String placeholder = values
-					.stream().map(e -> "?")
-					.collect(Collectors.joining(","));
-			return new Condition(
-					column + " IN (" + placeholder + ")",
-					values);
+	public static <Value> ConditionInterface in(String column, @NonNull List<Object> values) {
+		return new InCondition(column, values);
+	}
+
+	public static <Value> ConditionInterface not_in(String column, @NonNull List<Object> values) {
+		return new NotInCondition(column, values);
+	}
+
+	public static ConditionInterface like(String column, String value) {
+		return new LikeCondition(column, value);
+	}
+
+	abstract static class ListBinaryCondition implements ConditionInterface {
+
+		protected String column;
+		protected List<Object> values;
+
+		public ListBinaryCondition(@NonNull String column, @NonNull List<Object> values) {
+			this.column = column;
+			this.values = values;
+		}
+
+		public List<Object> getParams() {
+			return values;
 		}
 	}
 
-	public static <Value> Condition not_in(String column, @NonNull List<Value> values) {
-		if (values.isEmpty()) {
-			return new Condition("1=1");
-		} else {
-			String placeholder = values
-					.stream().map(e -> "?")
-					.collect(Collectors.joining(","));
-			return new Condition(
-					column + " NOT IN (" + placeholder + ")",
-					values);
+	static class InCondition extends ListBinaryCondition {
+
+		public InCondition(String column, List<Object> values) {
+			super(column, values);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			if (values.isEmpty()) {
+				return "1=0";
+			} else {
+				String placeholder = values
+						.stream().map(e -> "?")
+						.collect(Collectors.joining(","));
+				return Identifier.quote(column, identifierQuoteString) + " IN (" + placeholder + ")";
+			}
+
 		}
 	}
 
-	public static Condition like(String column, String value) {
-		if (value == null) {
-			return new Condition(column + " IS NULL");
-		} else {
-			List<String> values = new ArrayList<>();
-			values.add(value);
-			return new Condition(column + " LIKE ?", values);
+	static class NotInCondition extends ListBinaryCondition {
+
+		public NotInCondition(String column, List<Object> values) {
+			super(column, values);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			if (values.isEmpty()) {
+				return "1=1";
+			} else {
+				String placeholder = values
+						.stream().map(e -> "?")
+						.collect(Collectors.joining(","));
+				return Identifier.quote(column, identifierQuoteString) + " NOT IN (" + placeholder + ")";
+			}
+
 		}
 	}
 
-	/**
-	 * <code>
-	 *	( this ) AND ( x )
-	 * </code>
-	 *
-	 * @param x
-	 * @return
-	 */
-	public Condition and(Condition<Value> x) {
-		List<Value> values = new ArrayList<>();
-		values.addAll(this.params);
-		values.addAll(x.params);
-		return new Condition(
-				"( " + this.getTerm() + " ) AND ( " + x.getTerm() + " )",
-				values);
+	abstract static class BinaryCondition implements ConditionInterface {
+
+		protected String lhs;
+		protected Object rhs;
+
+		public BinaryCondition(@NonNull String lhs, Object rhs) {
+			this.lhs = lhs;
+			this.rhs = rhs;
+		}
+
+		abstract public String getTerm(String identifierQuoteString);
+
+		public List<Object> getParams() {
+			if (rhs == null) {
+				return Arrays.asList();
+			} else {
+				return Arrays.asList(rhs);
+			}
+		}
 	}
 
-	/**
-	 * <code>
-	 *	( this ) OR ( x )
-	 * </code>
-	 *
-	 * @param x
-	 * @return
-	 */
-	public Condition or(Condition<Value> x) {
-		List<Value> values = new ArrayList<>();
-		values.addAll(this.params);
-		values.addAll(x.params);
-		return new Condition(
-				"( " + this.getTerm() + " ) OR ( " + x.getTerm() + " )",
-				values);
+	static class EqualsCondition extends BinaryCondition implements ConditionInterface {
+
+		public EqualsCondition(String lhs, Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			if (rhs == null) {
+				return Identifier.quote(lhs, identifierQuoteString) + " IS NULL";
+			} else {
+				return Identifier.quote(lhs, identifierQuoteString) + "=?";
+			}
+		}
+	}
+
+	static class NotEqualsCondition extends BinaryCondition implements ConditionInterface {
+
+		public NotEqualsCondition(String lhs, Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			if (rhs == null) {
+				return Identifier.quote(lhs, identifierQuoteString) + " IS NOT NULL";
+			} else {
+				return Identifier.quote(lhs, identifierQuoteString) + "!=?";
+			}
+		}
+	}
+
+	static class GraterThanCondition extends BinaryCondition implements ConditionInterface {
+
+		public GraterThanCondition(String lhs, @NonNull Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return Identifier.quote(lhs, identifierQuoteString) + ">?";
+		}
+	}
+
+	static class LessThanCondition extends BinaryCondition implements ConditionInterface {
+
+		public LessThanCondition(String lhs, @NonNull Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return Identifier.quote(lhs, identifierQuoteString) + "<?";
+		}
+	}
+
+	static class GraterThanOrEqualsCondition extends BinaryCondition implements ConditionInterface {
+
+		public GraterThanOrEqualsCondition(String lhs, @NonNull Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return Identifier.quote(lhs, identifierQuoteString) + ">=?";
+		}
+	}
+
+	static class LessThanOrEqualsCondition extends BinaryCondition implements ConditionInterface {
+
+		public LessThanOrEqualsCondition(String lhs, @NonNull Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return Identifier.quote(lhs, identifierQuoteString) + "<=?";
+		}
+	}
+
+	static class LikeCondition extends BinaryCondition implements ConditionInterface {
+
+		public LikeCondition(String lhs, @NonNull Object rhs) {
+			super(lhs, rhs);
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return Identifier.quote(lhs, identifierQuoteString) + " LIKE ?";
+		}
+	}
+
+	static class OrCondition implements ConditionInterface {
+
+		private ConditionInterface a;
+		private ConditionInterface b;
+
+		public OrCondition(@NonNull ConditionInterface a, @NonNull ConditionInterface b) {
+			this.a = a;
+			this.b = b;
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return "( " + this.a.getTerm(identifierQuoteString) + " ) OR ( "
+					+ this.b.getTerm(identifierQuoteString) + " )";
+		}
+
+		@Override
+		public List<Object> getParams() {
+			ArrayList<Object> l = new ArrayList();
+			l.addAll(a.getParams());
+			l.addAll(b.getParams());
+			return l;
+		}
+	}
+
+	static class AndCondition implements ConditionInterface {
+
+		private ConditionInterface a;
+		private ConditionInterface b;
+
+		public AndCondition(@NonNull ConditionInterface a, @NonNull ConditionInterface b) {
+			this.a = a;
+			this.b = b;
+		}
+
+		@Override
+		public String getTerm(String identifierQuoteString) {
+			return "( " + this.a.getTerm(identifierQuoteString) + " ) AND ( "
+					+ this.b.getTerm(identifierQuoteString) + " )";
+		}
+
+		@Override
+		public List<Object> getParams() {
+			ArrayList<Object> l = new ArrayList();
+			l.addAll(a.getParams());
+			l.addAll(b.getParams());
+			return l;
+		}
 	}
 
 }

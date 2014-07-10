@@ -17,7 +17,8 @@ public class HanaSession implements AutoCloseable {
     final static Logger logger = LoggerFactory.getLogger(HanaSession.class);
 
     @Getter
-    private final Connection connection;
+	private final Connection connection;
+	@Getter
 	private final String identifierQuoteString;
 
     public HanaSession(HanaSessionFactory hana) throws SQLException {

@@ -21,7 +21,7 @@ public class UpdateStatement {
 
 	private final String table;
 	private final Map<String, String> set = new TreeMap<>();
-	private Condition condition = null;
+	private ConditionInterface condition = null;
 
 	public UpdateStatement(HanaSession currentSession, String table) {
 		this.table = table;
@@ -38,7 +38,7 @@ public class UpdateStatement {
 	 * @param condition
 	 * @return
 	 */
-	public UpdateStatement where(Condition condition) {
+	public UpdateStatement where(ConditionInterface condition) {
 		this.condition = condition;
 		return this;
 	}
@@ -68,7 +68,7 @@ public class UpdateStatement {
 		}).collect(Collectors.joining(",")));
 		if (condition != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm());
+			buf.append(condition.getTerm(session.getIdentifierQuoteString()));
 			params.addAll(condition.getParams());
 		}
 

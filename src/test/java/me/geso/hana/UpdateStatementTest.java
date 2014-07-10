@@ -34,7 +34,7 @@ public class UpdateStatementTest extends TestBase {
 					.build(session);
 			String q = query.getQuery();
 			System.out.println(q);
-			assertEquals("UPDATE \"member\" SET \"email\"=? WHERE email=?", q);
+			assertEquals("UPDATE \"member\" SET \"email\"=? WHERE \"email\"=?", q);
 			assertEquals(1, query.prepare(session).executeUpdate());
 			assertEquals(0, session.search(Member.class).where(eq("email", "bar@example.com")).count());
 			assertEquals(1, session.search(Member.class).where(eq("email", "foo@example.com")).count());

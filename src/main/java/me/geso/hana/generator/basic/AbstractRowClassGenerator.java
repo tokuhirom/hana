@@ -359,7 +359,6 @@ public class AbstractRowClassGenerator extends Renderer {
 		}).findFirst();
 		if (ai.isPresent()) {
 			appendf("		PreparedStatement stmt = insert.prepare();\n");
-			appendf("		HanaSession.logStatement(stmt);\n");
 			appendf("		stmt.execute();\n");
 			appendf("		try (ResultSet rs = stmt.getGeneratedKeys();) {\n");
 			appendf("			if (rs.next()) {\n");
@@ -368,7 +367,6 @@ public class AbstractRowClassGenerator extends Renderer {
 			appendf("		}\n");
 		} else {
 			appendf("		PreparedStatement stmt = insert.prepare();\n");
-			appendf("		HanaSession.logStatement(stmt);\n");
 			appendf("		stmt.executeUpdate();\n");
 		}
 		append("		columns.addAll(dirtyColumns);\n");

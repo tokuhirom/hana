@@ -3,7 +3,6 @@ package me.geso.hana;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import org.junit.Before;
 
 public class TestBase {
@@ -30,7 +29,7 @@ public class TestBase {
 				"CREATE TABLE IF NOT EXISTS comment (id INTEGER AUTO_INCREMENT PRIMARY KEY, entry_id INT UNSIGNED NOT NULL, body VARCHAR(255) DEFAULT NULL, data LONGBLOB, created_on INTEGER UNSIGNED, FOREIGN KEY(entry_id) REFERENCES entry(id) ON DELETE CASCADE)")
 				.execute();
                 conn.prepareStatement("DELETE FROM member").executeUpdate();
-		hanaSessionFactory = new HanaSessionFactory("jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE", null, null);
+		hanaSessionFactory = new HanaSessionFactory("jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE", null, null);
 	}
 
 }

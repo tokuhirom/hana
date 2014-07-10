@@ -66,7 +66,6 @@ public abstract class AbstractRow {
 			delete.whereEq(column, this.getColumn(column));
 		}
 		PreparedStatement stmt = delete.prepare();
-		HanaSession.logStatement(stmt);
 		int deleted = stmt.executeUpdate();
 		if (deleted != 1) {
 			throw new HanaException("Cannot delete statement: ");
@@ -79,7 +78,6 @@ public abstract class AbstractRow {
 			update.set(column, this.getColumn(column));
 		}
 		PreparedStatement stmt = update.prepare(currentSession());
-		HanaSession.logStatement(stmt);
 		stmt.executeUpdate();
 	}
 

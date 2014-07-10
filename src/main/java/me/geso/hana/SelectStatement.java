@@ -102,7 +102,6 @@ public class SelectStatement<T extends AbstractRow> {
 	public long count() throws SQLException, HanaException {
 		final String sql = "SELECT COUNT(*) FROM (" + this.buildQuery() + ")";
 		PreparedStatement statement = this.prepare(sql);
-		HanaSession.logStatement(statement);
 		ResultSet rs = statement.executeQuery();
 		if (rs.next()) {
 			return rs.getLong(1);

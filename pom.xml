@@ -57,6 +57,13 @@
 			<version>1.7.7</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.googlecode.log4jdbc</groupId>
+			<artifactId>log4jdbc</artifactId>
+			<version>1.2</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -73,7 +73,7 @@ public abstract class AbstractRow {
 		}
 	}
 
-	public void update() throws SQLException {
+	public void update() throws SQLException, HanaException {
 		UpdateStatement update = new UpdateStatement(currentSession(), AbstractRow.getTableName(this.getClass()));
 		for (String column : this.dirtyColumns) {
 			update.set(column, this.getColumn(column));

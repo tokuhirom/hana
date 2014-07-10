@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.NonNull;
 
 /**
  *
@@ -21,7 +22,7 @@ public class Condition<Value> {
 	private final String term;
 
 	@Getter
-	private final List<Value> params;
+	final List<Value> params;
 
 	public Condition(String term) {
 		this.term = term;
@@ -43,6 +44,72 @@ public class Condition<Value> {
 		}
 	}
 
+	public static <Value> Condition ne(String column, Value value) {
+		if (value == null) {
+			return new Condition(column + " IS NOT NULL");
+		} else {
+			List<Value> values = new ArrayList<>();
+			values.add(value);
+			return new Condition(column + "!=?", values);
+		}
+	}
+
+	/**
+	 * Condition: `column > value`
+	 *
+	 * @param <Value>
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	public static <Value> Condition gt(String column, @NonNull Value value) {
+		List<Value> values = new ArrayList<>();
+		values.add(value);
+		return new Condition(column + ">?", values);
+	}
+
+	/**
+	 * Condition: `column < value`
+	 *
+	 * @param <Value>
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	public static <Value> Condition lt(String column, @NonNull Value value) {
+		List<Value> values = new ArrayList<>();
+		values.add(value);
+		return new Condition(column + "<?", values);
+	}
+
+	/**
+	 * >=
+	 *
+	 * @param <Value>
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	public static <Value> Condition ge(String column, @NonNull Value value) {
+		List<Value> values = new ArrayList<>();
+		values.add(value);
+		return new Condition(column + ">=?", values);
+	}
+
+	/**
+	 * <=
+	 *
+	 * @param <Value>
+	 * @param column
+	 * @param value
+	 * @return
+	 */
+	public static <Value> Condition le(String column, @NonNull Value value) {
+		List<Value> values = new ArrayList<>();
+		values.add(value);
+		return new Condition(column + "<=?", values);
+	}
+
 	/**
 	 * <code>
 	 *	.where(in("a", Arrays.asList(1,2,3)));
@@ -53,9 +120,8 @@ public class Condition<Value> {
 	 * @param values
 	 * @return
 	 */
-	// TODO test me
-	public static <Value> Condition in(String column, List<Value> values) {
-		if (values == null) {
+	public static <Value> Condition in(String column, @NonNull List<Value> values) {
+		if (values.isEmpty()) {
 			return new Condition("1=0");
 		} else {
 			String placeholder = values
@@ -67,14 +133,61 @@ public class Condition<Value> {
 		}
 	}
 
-	public static <Value> Condition like(String column, Value value) {
+	public static <Value> Condition not_in(String column, @NonNull List<Value> values) {
+		if (values.isEmpty()) {
+			return new Condition("1=1");
+		} else {
+			String placeholder = values
+					.stream().map(e -> "?")
+					.collect(Collectors.joining(","));
+			return new Condition(
+					column + " NOT IN (" + placeholder + ")",
+					values);
+		}
+	}
+
+	public static Condition like(String column, String value) {
 		if (value == null) {
 			return new Condition(column + " IS NULL");
 		} else {
-			List<Value> values = new ArrayList<>();
+			List<String> values = new ArrayList<>();
 			values.add(value);
 			return new Condition(column + " LIKE ?", values);
 		}
+	}
+
+	/**
+	 * <code>
+	 *	( this ) AND ( x )
+	 * </code>
+	 *
+	 * @param x
+	 * @return
+	 */
+	public Condition and(Condition<Value> x) {
+		List<Value> values = new ArrayList<>();
+		values.addAll(this.params);
+		values.addAll(x.params);
+		return new Condition(
+				"( " + this.getTerm() + " ) AND ( " + x.getTerm() + " )",
+				values);
+	}
+
+	/**
+	 * <code>
+	 *	( this ) OR ( x )
+	 * </code>
+	 *
+	 * @param x
+	 * @return
+	 */
+	public Condition or(Condition<Value> x) {
+		List<Value> values = new ArrayList<>();
+		values.addAll(this.params);
+		values.addAll(x.params);
+		return new Condition(
+				"( " + this.getTerm() + " ) OR ( " + x.getTerm() + " )",
+				values);
 	}
 
 }

@@ -27,18 +27,37 @@ public class UpdateStatement {
 		this.table = table;
 	}
 
-	public void set(String column, String value) {
+	public UpdateStatement set(String column, String value) {
 		set.put(column, value);
+		return this;
 	}
 
-	public void where(Condition condition) {
+	/**
+	 * Set the where clause.
+	 *
+	 * @param condition
+	 * @return
+	 */
+	public UpdateStatement where(Condition condition) {
 		this.condition = condition;
+		return this;
 	}
 
-	public PreparedStatement prepare(HanaSession session) throws SQLException {
-		final List<String> params = new ArrayList<>();
+	/**
+	 * Build Query object from UpdateStatement.
+	 *
+	 * @param session
+	 * @return
+	 * @throws HanaException
+	 */
+	public Query build(HanaSession session) throws HanaException {
+		if (set.isEmpty()) {
+			throw new HanaException("no SET in UPDATE statement : " + this.table);
+		}
+
+		final List<Object> params = new ArrayList<>();
 		final StringBuilder buf = new StringBuilder();
-		buf.append("UPDATE ").append(session.quoteIdentifier(this.table)).append(" ");
+		buf.append("UPDATE ").append(session.quoteIdentifier(this.table)).append(" SET ");
 		buf.append(set.keySet().stream().map(column -> {
 			if (column == null) {
 				return session.quoteIdentifier(column) + "=NULL";
@@ -50,17 +69,15 @@ public class UpdateStatement {
 		if (condition != null) {
 			buf.append(" WHERE ");
 			buf.append(condition.getTerm());
+			params.addAll(condition.getParams());
 		}
 
 		final String sql = buf.toString();
-		final PreparedStatement stmt = session.prepareStatement(sql);
+		return new Query(sql, params);
+	}
 
-		int parameterIndex = 1;
-		for (String val : params) {
-			stmt.setString(parameterIndex++, val);
-		}
-
-		return stmt;
+	public PreparedStatement prepare(HanaSession session) throws SQLException, HanaException {
+		return this.build(session).prepare(session);
 	}
 
 }

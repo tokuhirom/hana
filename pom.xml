@@ -4,33 +4,40 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.geso</groupId>
 	<artifactId>hana</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>hana</name>
-	<description>hana</description>
+	<description>Tiny Object/Relational Mapper for Java 8</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
-  <repositories>
-      <repository>
-          <id>tokuhirom</id>
-          <url>https://tokuhirom.github.io/maven/releases/</url>
-      </repository>
-  </repositories>
+	<repositories>
+		<repository>
+			<id>tokuhirom</id>
+			<url>https://tokuhirom.github.io/maven/releases/</url>
+		</repository>
+	</repositories>
 
 
-  <distributionManagement>
-      <repository>
-          <id>repo</id>
-          <url>https://tokuhirom.github.io/maven/releases</url>
-      </repository>
-      <snapshotRepository>
-          <id>snapshot-repo</id>
-          <url>https://tokuhirom.github.io/maven/snapshots/</url>
-      </snapshotRepository>
-  </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>repo</id>
+			<url>https://tokuhirom.github.io/maven/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshot-repo</id>
+			<url>https://tokuhirom.github.io/maven/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<scm>
+		<url>https://github.com/tokuhirom/hana/</url>
+		<connection>scm:git:git://github.com/tokuhirom/hana.git</connection>
+		<developerConnection>scm:git:git@github.com:tokuhirom/hana.git</developerConnection>
+	</scm>
+
 
 	<dependencies>
 		<dependency>
@@ -76,12 +83,6 @@
 			<version>1.7.7</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.googlecode.log4jdbc</groupId>
-			<artifactId>log4jdbc</artifactId>
-			<version>1.2</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 
@@ -94,11 +95,6 @@
 					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.15</version>
 			</plugin>
 		</plugins>
 	</build>

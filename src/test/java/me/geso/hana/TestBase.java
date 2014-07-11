@@ -12,9 +12,8 @@ public class TestBase {
 	@Before
 	public void setup() throws SQLException, ClassNotFoundException {
 		Class.forName("org.h2.Driver");
-		Class.forName("net.sf.log4jdbc.DriverSpy");
 		conn = DriverManager
-				.getConnection("jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE;TRACE_LEVEL_SYSTEM_OUT=3");
+				.getConnection("jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE;TRACE_LEVEL_FILE=4;TRACE_LEVEL_SYSTEM_OUT=3");
 		conn.prepareStatement("DROP TABLE IF EXISTS member").executeUpdate();
 		conn.prepareStatement(
 				"CREATE TABLE member (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED)")

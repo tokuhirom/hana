@@ -13,6 +13,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
+  <repositories>
+      <repository>
+          <id>tokuhirom</id>
+          <url>https://tokuhirom.github.io/maven/releases/</url>
+      </repository>
+  </repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -28,7 +35,7 @@
 		<dependency>
 			<groupId>me.geso</groupId>
 			<artifactId>dbinspector</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

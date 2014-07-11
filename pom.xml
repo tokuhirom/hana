@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.geso</groupId>
 	<artifactId>hana</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>hana</name>
 	<description>hana</description>
 
@@ -19,6 +19,18 @@
           <url>https://tokuhirom.github.io/maven/releases/</url>
       </repository>
   </repositories>
+
+
+  <distributionManagement>
+      <repository>
+          <id>repo</id>
+          <url>https://tokuhirom.github.io/maven/releases</url>
+      </repository>
+      <snapshotRepository>
+          <id>snapshot-repo</id>
+          <url>https://tokuhirom.github.io/maven/snapshots/</url>
+      </snapshotRepository>
+  </distributionManagement>
 
 	<dependencies>
 		<dependency>

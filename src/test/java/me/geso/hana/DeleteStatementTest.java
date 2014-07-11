@@ -26,65 +26,60 @@ public class DeleteStatementTest extends TestBase {
 	 */
 	@Test
 	public void test() throws SQLException, HanaException {
-		// Delete all rows
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			insertFixture(session);
+		{
+			// Delete all rows
+			insertFixture();
 
-			DeleteStatement delete = new DeleteStatement(session, "member");
-			PreparedStatement stmt = delete.prepare();
+			Query query = Delete.from("member").build(conn);
+			PreparedStatement stmt = query.prepare(conn);
 			int affected = stmt.executeUpdate();
-//			assertEquals("DELETE FROM \"member\"", this.getQuery(stmt));
+			assertEquals("DELETE FROM \"member\"", query.getQuery());
 			assertEquals(3, affected);
-			assertEquals(0, countMember(session));
+			assertEquals(0, countMember());
 		}
 
 		// Delete selected row
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			insertFixture(session);
+		{
+			insertFixture();
 
-			DeleteStatement delete = new DeleteStatement(session, "member").whereEq("email", "fuga@example.com");
-			PreparedStatement stmt = delete.prepare();
+			Query query = new Delete("member").where(eq("email", "fuga@example.com")).build(conn);
+			PreparedStatement stmt = query.prepare(conn);
 			int affected = stmt.executeUpdate();
-			assertEquals("DELETE FROM \"member\" WHERE \"email\"=?", delete.renderQuery());
+			assertEquals("DELETE FROM \"member\" WHERE \"email\"=?", query.getQuery());
 			assertEquals(1, affected);
-			assertEquals(2, countMember(session));
+			assertEquals(2, countMember());
 		}
 
 		// Delete with NULL value
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			insertFixture(session);
+		{
+			insertFixture();
 
 			// Member.name.eq(null)
-			DeleteStatement delete = new DeleteStatement(session, "member")
-					.where(eq("email", null));
-			PreparedStatement stmt = delete.prepare();
+			Query query = new Delete("member")
+					.where(eq("email", null)).build(conn);
+			PreparedStatement stmt = query.prepare(conn);
 			int affected = stmt.executeUpdate();
-			assertEquals("DELETE FROM \"member\" WHERE \"email\" IS NULL", delete.renderQuery());
+			assertEquals("DELETE FROM \"member\" WHERE \"email\" IS NULL", query.getQuery());
 
 			// Deleted one row.
 			assertEquals(1, affected);
-			assertEquals(2, countMember(session));
+			assertEquals(2, countMember());
 
 //			session.dumpTable("member", System.out);
 		}
 	}
 
-	private static long countMember(final HanaSession session) throws HanaException, SQLException {
-		return session.search(Member.class).count();
+	private long countMember() throws HanaException, SQLException {
+		return Select.from(Member.class).count(conn);
 	}
 
-	private void insertFixture(final HanaSession session) throws SQLException, HanaException {
+	private void insertFixture() throws SQLException, HanaException {
 		// Insert dummy data
-		session.doQuery("DELETE FROM member");
-		session.doQuery("INSERT INTO member (email) VALUES (NULL)");
-		session.doQuery("INSERT INTO member (email) VALUES ('hoge@example.com')");
-		session.doQuery("INSERT INTO member (email) VALUES ('fuga@example.com')");
-		assertEquals(3, countMember(session));
-	}
-
-	private String getQuery(PreparedStatement stmt) {
-		String statementText = stmt.toString();
-		return statementText.substring(statementText.indexOf(": ") + 2);
+		conn.prepareStatement("DELETE FROM member").executeUpdate();
+		conn.prepareStatement("INSERT INTO member (email) VALUES (NULL)").executeUpdate();
+		conn.prepareStatement("INSERT INTO member (email) VALUES ('hoge@example.com')").executeUpdate();
+		conn.prepareStatement("INSERT INTO member (email) VALUES ('fuga@example.com')").executeUpdate();
+		assertEquals(3, countMember());
 	}
 
 }

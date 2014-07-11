@@ -6,14 +6,17 @@
 package me.geso.hana;
 
 import java.sql.PreparedStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  *
  * @author Tokuhiro Matsuno <tokuhirom@gmail.com>
  */
+@ToString
 public class Query {
 
 	@Getter
@@ -30,12 +33,12 @@ public class Query {
 	/**
 	 * Create prepared statement from query object.
 	 *
-	 * @param session
+	 * @param connection
 	 * @return
 	 * @throws SQLException
 	 */
-	public PreparedStatement prepare(HanaSession session) throws SQLException {
-		PreparedStatement stmt = session.prepareStatement(query);
+	public PreparedStatement prepare(Connection connection) throws SQLException {
+		PreparedStatement stmt = connection.prepareStatement(query);
 		int parameterIndex = 1;
 		for (Object param : params) {
 			stmt.setObject(parameterIndex++, param);

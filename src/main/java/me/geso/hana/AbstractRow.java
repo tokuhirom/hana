@@ -1,5 +1,6 @@
 package me.geso.hana;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,12 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static me.geso.hana.Condition.eq;
 import me.geso.hana.annotation.Table;
 
 public abstract class AbstractRow {
 
 	private final Map<String, String> extraColumns = new HashMap<>();
-	protected HanaSession session;
 	protected boolean inDatabase = false;
 	protected Set<String> dirtyColumns = new HashSet<>();
 	protected Set<String> columns = new HashSet<>();
@@ -43,15 +44,7 @@ public abstract class AbstractRow {
 		return this.dirtyColumns.size() > 0;
 	}
 
-	public void setSession(HanaSession session) {
-		this.session = session;
-	}
-
-	public HanaSession currentSession() {
-		return session;
-	}
-
-	public void delete() throws SQLException, HanaException {
+	public void delete(Connection connection) throws SQLException, HanaException {
 		for (String pk : this.getPrimaryKeys()) {
 			if (!(this.columns.contains(pk) || this.dirtyColumns
 					.contains(pk))) {
@@ -60,24 +53,23 @@ public abstract class AbstractRow {
 		}
 
 		// Delete column from database.
-		DeleteStatement delete = new DeleteStatement(this.session,
-				this.getTableName());
+		Delete delete = Delete.from(this.getTableName());
 		for (String column : this.getPrimaryKeys()) {
-			delete.whereEq(column, this.getColumn(column));
+			delete.where(eq(column, this.getColumn(column)));
 		}
-		PreparedStatement stmt = delete.prepare();
+		PreparedStatement stmt = delete.build(connection).prepare(connection);
 		int deleted = stmt.executeUpdate();
 		if (deleted != 1) {
 			throw new HanaException("Cannot delete statement: ");
 		}
 	}
 
-	public void update() throws SQLException, HanaException {
-		UpdateStatement update = new UpdateStatement(currentSession(), AbstractRow.getTableName(this.getClass()));
+	public void update(Connection connection) throws SQLException, HanaException {
+		Update update = new Update(AbstractRow.getTableName(this.getClass()));
 		for (String column : this.dirtyColumns) {
 			update.set(column, this.getColumn(column));
 		}
-		PreparedStatement stmt = update.prepare(currentSession());
+		PreparedStatement stmt = update.build(connection).prepare(connection);
 		stmt.executeUpdate();
 	}
 
@@ -97,6 +89,6 @@ public abstract class AbstractRow {
 
 	abstract public void initialize(ResultSet rs) throws SQLException;
 
-	abstract public void insert(HanaSession hanaSession) throws SQLException, HanaException;
+	abstract public void insert(Connection connection) throws SQLException, HanaException;
 
 }

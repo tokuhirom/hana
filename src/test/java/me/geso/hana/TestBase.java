@@ -8,13 +8,13 @@ import org.junit.Before;
 public class TestBase {
 
 	protected Connection conn;
-	protected HanaSessionFactory hanaSessionFactory;
 
 	@Before
 	public void setup() throws SQLException, ClassNotFoundException {
 		Class.forName("org.h2.Driver");
+		Class.forName("net.sf.log4jdbc.DriverSpy");
 		conn = DriverManager
-				.getConnection("jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE");
+				.getConnection("jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE;TRACE_LEVEL_SYSTEM_OUT=3");
 		conn.prepareStatement("DROP TABLE IF EXISTS member").executeUpdate();
 		conn.prepareStatement(
 				"CREATE TABLE member (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED)")
@@ -28,8 +28,7 @@ public class TestBase {
 		conn.prepareStatement(
 				"CREATE TABLE IF NOT EXISTS comment (id INTEGER AUTO_INCREMENT PRIMARY KEY, entry_id INT UNSIGNED NOT NULL, body VARCHAR(255) DEFAULT NULL, data LONGBLOB, created_on INTEGER UNSIGNED, FOREIGN KEY(entry_id) REFERENCES entry(id) ON DELETE CASCADE)")
 				.execute();
-                conn.prepareStatement("DELETE FROM member").executeUpdate();
-		hanaSessionFactory = new HanaSessionFactory("jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE", null, null);
+		conn.prepareStatement("DELETE FROM member").executeUpdate();
 	}
 
 }

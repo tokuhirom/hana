@@ -23,18 +23,16 @@ public class SelectStatementTest extends TestBase {
 	 */
 	@Test
 	public void testGetResultList() throws Exception {
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+		{
 			Member m1 = new Member().setEmail("hoge@example.com");
 			Member m2 = new Member().setEmail("fuga@example.com");
-			session.insert(m1);
-			session.insert(m2);
+			m1.insert(conn);
+			m2.insert(conn);
 
 			assertEquals("fuga@example.com,hoge@example.com",
-					session
-					.search(Member.class)
+					Select.from(Member.class)
 					.orderBy("email ASC")
-					.getResultList()
-					.stream()
+					.stream(conn)
 					.map(row -> row.getEmail())
 					.collect(Collectors.joining(",")));
 		}
@@ -47,17 +45,16 @@ public class SelectStatementTest extends TestBase {
 	 */
 	@Test
 	public void testStream() throws Exception {
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+		{
 			Member m1 = new Member().setEmail("hoge@example.com");
 			Member m2 = new Member().setEmail("fuga@example.com");
-			session.insert(m1);
-			session.insert(m2);
+			m1.insert(conn);
+			m2.insert(conn);
 
 			assertEquals("fuga@example.com,hoge@example.com",
-					session
-					.search(Member.class)
+					Select.from(Member.class)
 					.orderBy("email ASC")
-					.stream()
+					.stream(conn)
 					.map(row -> row.getEmail())
 					.collect(Collectors.joining(",")));
 		}
@@ -70,13 +67,16 @@ public class SelectStatementTest extends TestBase {
 	 */
 	@Test
 	public void testFirst() throws Exception {
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
+		{
 			Member m1 = new Member().setEmail("hoge@example.com");
 			Member m2 = new Member().setEmail("fuga@example.com");
-			session.insert(m1);
-			session.insert(m2);
+			m1.insert(conn);
+			m2.insert(conn);
 
-			Optional<Member> got = session.search(Member.class).where(eq("email", "hoge@example.com")).first();
+			Optional<Member> got = Select.from(Member.class)
+					.where(eq("email", "hoge@example.com"))
+					.stream(conn)
+					.findFirst();
 			assertTrue(got.isPresent());
 			assertEquals(m1.getId(), got.get().getId());
 		}
@@ -90,20 +90,19 @@ public class SelectStatementTest extends TestBase {
 	@Test
 	public void testCount() throws Exception {
 		System.out.println("count");
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			SelectStatement stmt = new SelectStatement(session, Member.class);
+		{
+			long result = Select.from(Member.class).count(conn);
 			long expResult = 0L;
-			long result = stmt.count();
 			assertEquals(expResult, result);
 		}
 
 		// has rows
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			session.insert(new Member().setEmail("hoge@example.com"));
-			session.insert(new Member().setEmail("fuga@example.com"));
+		{
+			new Member().setEmail("hoge@example.com").insert(conn);
+			new Member().setEmail("fuga@example.com").insert(conn);
 
-			assertEquals(2L, session.search(Member.class).count());
-			assertEquals(1L, session.search(Member.class).where(eq("email", "fuga@example.com")).count());
+			assertEquals(2L, Select.from(Member.class).count(conn));
+			assertEquals(1L, Select.from(Member.class).where(eq("email", "fuga@example.com")).count(conn));
 		}
 	}
 

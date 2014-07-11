@@ -5,6 +5,7 @@
  */
 package me.geso.hana;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,17 +18,17 @@ import java.util.stream.Collectors;
  *
  * @author tokuhirom
  */
-public class UpdateStatement {
+public class Update {
 
 	private final String table;
 	private final Map<String, String> set = new TreeMap<>();
 	private ConditionInterface condition = null;
 
-	public UpdateStatement(HanaSession currentSession, String table) {
+	public Update(String table) {
 		this.table = table;
 	}
 
-	public UpdateStatement set(String column, String value) {
+	public Update set(String column, String value) {
 		set.put(column, value);
 		return this;
 	}
@@ -38,7 +39,7 @@ public class UpdateStatement {
 	 * @param condition
 	 * @return
 	 */
-	public UpdateStatement where(ConditionInterface condition) {
+	public Update where(ConditionInterface condition) {
 		this.condition = condition;
 		return this;
 	}
@@ -46,29 +47,32 @@ public class UpdateStatement {
 	/**
 	 * Build Query object from UpdateStatement.
 	 *
-	 * @param session
+	 * @param connection
 	 * @return
 	 * @throws HanaException
+	 * @throws java.sql.SQLException
 	 */
-	public Query build(HanaSession session) throws HanaException {
+	public Query build(Connection connection) throws HanaException, SQLException {
 		if (set.isEmpty()) {
 			throw new HanaException("no SET in UPDATE statement : " + this.table);
 		}
 
+		final String identifierQuoteString = connection.getMetaData().getIdentifierQuoteString();
+
 		final List<Object> params = new ArrayList<>();
 		final StringBuilder buf = new StringBuilder();
-		buf.append("UPDATE ").append(session.quoteIdentifier(this.table)).append(" SET ");
+		buf.append("UPDATE ").append(Identifier.quote(this.table, identifierQuoteString)).append(" SET ");
 		buf.append(set.keySet().stream().map(column -> {
 			if (column == null) {
-				return session.quoteIdentifier(column) + "=NULL";
+				return Identifier.quote(column, identifierQuoteString) + "=NULL";
 			} else {
 				params.add(set.get(column));
-				return session.quoteIdentifier(column) + "=?";
+				return Identifier.quote(column, identifierQuoteString) + "=?";
 			}
 		}).collect(Collectors.joining(",")));
 		if (condition != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm(session.getIdentifierQuoteString()));
+			buf.append(condition.getTerm(identifierQuoteString));
 			params.addAll(condition.getParams());
 		}
 
@@ -76,8 +80,8 @@ public class UpdateStatement {
 		return new Query(sql, params);
 	}
 
-	public PreparedStatement prepare(HanaSession session) throws SQLException, HanaException {
-		return this.build(session).prepare(session);
+	public PreparedStatement prepare(Connection connection) throws SQLException, HanaException {
+		return this.build(connection).prepare(connection);
 	}
 
 }

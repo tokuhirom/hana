@@ -12,21 +12,21 @@ public class RowTest extends TestBase {
 
 	@Test
 	public void testInsert() throws SQLException, HanaException {
-		try (HanaSession session = hanaSessionFactory.createSession()) {
+		{
 			{
 				Member member = new Member().setEmail("foo@example.com");
-				member.insert(session);
+				member.insert(conn);
 				System.out.println(member);
 				assertEquals(1, member.getId());
 				assertNotEquals(0, member.getCreatedOn());
-				assertEquals(1, member.refetch().get().getId());
+				assertEquals(1, member.refetch(conn).get().getId());
 			}
 
 			{
 				Member member = new Member().setEmail("bar@example.com");
-				member.insert(session);
+				member.insert(conn);
 				System.out.println(member);
-				session.dumpTable("member", System.out);
+				new TableDumper().dump(conn, "member", System.out);
 				assertEquals(2, member.getId());
 				assertNotEquals(0, member.getCreatedOn());
 			}
@@ -35,23 +35,32 @@ public class RowTest extends TestBase {
 
 	@Test
 	public void testDelete() throws Exception {
-		try (HanaSession session = hanaSessionFactory.createSession()) {
+		{
 			{
 				Member member1 = new Member().setEmail("foo@example.com");
 				Member member2 = new Member().setEmail("bar@example.com");
-				member1.insert(session);
-				member2.insert(session);
+				member1.insert(conn);
+				member2.insert(conn);
 
-				assertTrue(member1.refetch().isPresent());
-				assertTrue(member2.refetch().isPresent());
+				assertTrue(member1.refetch(conn).isPresent());
+				assertTrue(member2.refetch(conn).isPresent());
 
-				member1.delete();
+				member1.delete(conn);
 
-				assertFalse(member1.refetch().isPresent());
-				assertTrue(member2.refetch().isPresent());
+				assertFalse(member1.refetch(conn).isPresent());
+				assertTrue(member2.refetch(conn).isPresent());
 			}
 		}
 
+	}
+
+	@Test
+	public void testCount() throws Exception {
+		assertEquals(0, Member.count(conn));
+		new Member().setEmail(null).insert(conn);
+		assertEquals(1, Member.count(conn));
+		new Member().setEmail("hoge@gmail.com").insert(conn);
+		assertEquals(2, Member.count(conn));
 	}
 
 }

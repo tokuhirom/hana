@@ -9,6 +9,8 @@ UNDER DEVELOPMENT.
 
 ### How do I log query with hana?
 
+#### With log4jdbc
+
 You can use log4jdbc.
 
 You can get the jar from maven central repository:
@@ -21,5 +23,11 @@ In your code, you can wrap the connection by ConectionSpy class. It prints the q
 Or just put `:log4jdbc:` in JDBC dsn:
 
     "jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE"
+
+#### With JDBC Driver
+
+On h2, you can write a JDBC driver.
+
+     jdbc:h2:mem:test;TRACE_LEVEL_FIlE=4;TRACE_LEVEL_SYSTEM_OUT=3
 
 

@@ -22,22 +22,22 @@ public class UpdateStatementTest extends TestBase {
 	@Test
 	public void testPrepare() throws Exception {
 		System.out.println("prepare");
-		try (HanaSession session = this.hanaSessionFactory.createSession()) {
-			session.doQuery("INSERT INTO member (email) VALUES (NULL)");
-			session.doQuery("INSERT INTO member (email) VALUES ('hoge@example.com')");
-			session.doQuery("INSERT INTO member (email) VALUES ('bar@example.com')");
+		{
+			conn.prepareStatement("INSERT INTO member (email) VALUES (NULL)").executeUpdate();
+			conn.prepareStatement("INSERT INTO member (email) VALUES ('hoge@example.com')").executeUpdate();
+			conn.prepareStatement("INSERT INTO member (email) VALUES ('bar@example.com')").executeUpdate();
 
-			UpdateStatement stmt = new UpdateStatement(session, "member");
+			Update stmt = new Update("member");
 			Query query = stmt
 					.set("email", "foo@example.com")
 					.where(eq("email", "bar@example.com"))
-					.build(session);
+					.build(conn);
 			String q = query.getQuery();
 			System.out.println(q);
 			assertEquals("UPDATE \"member\" SET \"email\"=? WHERE \"email\"=?", q);
-			assertEquals(1, query.prepare(session).executeUpdate());
-			assertEquals(0, session.search(Member.class).where(eq("email", "bar@example.com")).count());
-			assertEquals(1, session.search(Member.class).where(eq("email", "foo@example.com")).count());
+			assertEquals(1, query.prepare(conn).executeUpdate());
+			assertEquals(0, Select.from(Member.class).where(eq("email", "bar@example.com")).count(conn));
+			assertEquals(1, Select.from(Member.class).where(eq("email", "foo@example.com")).count(conn));
 		}
 	}
 

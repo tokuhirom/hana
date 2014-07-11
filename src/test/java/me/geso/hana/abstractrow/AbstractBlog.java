@@ -12,8 +12,6 @@ import java.util.stream.Stream;
 import java.util.Optional;
 import java.time.Instant;
 import javax.annotation.Generated;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import me.geso.hana.annotation.Table;
 import me.geso.hana.Insert;
@@ -24,7 +22,7 @@ import me.geso.hana.Select;
 @SuppressWarnings("unused")
 @Table(name = "blog")
 public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
-	static final Logger logger = LoggerFactory.getLogger(AbstractBlog.class);	public String getTableName() { return "blog"; }
+	public String getTableName() { return "blog"; }
 	private static final List<String> primaryKeys = Arrays.asList("id");
 	@Override
 	public List<String> getPrimaryKeys() {

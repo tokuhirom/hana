@@ -50,8 +50,6 @@ public class AbstractRowClassGenerator extends Renderer {
 		append("import java.util.Optional;\n");
 		append("import java.time.Instant;\n");
 		append("import javax.annotation.Generated;\n");
-		append("import org.slf4j.Logger;\n");
-		append("import org.slf4j.LoggerFactory;\n");
 		append("\n");
 		append("import me.geso.hana.annotation.Table;\n");
 		append("import me.geso.hana.Insert;\n");
@@ -65,8 +63,6 @@ public class AbstractRowClassGenerator extends Renderer {
 		appendf("public abstract class %s extends %s {\n",
 				configuration.generateAbstractClassName(table.getName()),
 				configuration.generateBaseClass(table.getName()));
-		appendf("	static final Logger logger = LoggerFactory.getLogger(%s.class);",
-				configuration.generateAbstractClassName(table.getName()));
 
 		renderGetTableName(table);
 		renderGetPrimaryKeys(table);

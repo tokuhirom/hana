@@ -63,11 +63,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.6</version>
-		</dependency>
-		<dependency>
 			<groupId>org.atteo</groupId>
 			<artifactId>evo-inflector</artifactId>
 			<version>1.0.1</version>
@@ -77,13 +72,6 @@
 			<artifactId>h2</artifactId>
 			<version>1.4.179</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.7</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>

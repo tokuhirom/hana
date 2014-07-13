@@ -15,15 +15,39 @@ public class Insert {
 		this.table = table;
 	}
 
+	/**
+	 * Shorthand for creating Insert statement object.
+	 *
+	 * <code>
+	 * 	Insert insert = Insert.into("member");
+	 * </code>
+	 *
+	 * @param table
+	 * @return
+	 */
 	public static Insert into(String table) {
 		return new Insert(table);
 	}
 
+	/**
+	 * Set key-value set to the insert statement.
+	 *
+	 * @param key
+	 * @param value
+	 * @return Insert object itself. You can use method chain.
+	 */
 	public Insert value(String key, Object value) {
 		this.values.put(key, value);
 		return this;
 	}
 
+	/**
+	 * Build query object.
+	 *
+	 * @param connection
+	 * @return
+	 * @throws SQLException
+	 */
 	public Query build(Connection connection) throws SQLException {
 		return this.build(connection.getMetaData().getIdentifierQuoteString());
 	}

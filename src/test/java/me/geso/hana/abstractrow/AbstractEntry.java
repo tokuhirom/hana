@@ -111,7 +111,7 @@ public abstract class AbstractEntry extends me.geso.hana.AbstractRow {
 	public static Optional<me.geso.hana.row.Entry> find(Connection connection, long id) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Entry.class)
 		.where(me.geso.hana.Condition.eq("id", id))
-		.first(connection);
+		.stream(connection).findFirst();
 	}
 
 	public Optional<me.geso.hana.row.Entry> refetch(Connection connection) throws SQLException, HanaException {

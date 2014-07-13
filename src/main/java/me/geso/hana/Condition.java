@@ -14,14 +14,27 @@ import lombok.NonNull;
 /**
  *
  * @author tokuhirom
- * @param <Value>
  */
-public class Condition<Value> {
+public class Condition {
 
+	/**
+	 * The `==` expression.
+	 *
+	 * @param column
+	 * @param value
+	 * @return
+	 */
 	public static ConditionInterface eq(String column, Object value) {
 		return new EqualsCondition(column, value);
 	}
 
+	/**
+	 * The `!=` expression.
+	 *
+	 * @param column
+	 * @param value
+	 * @return
+	 */
 	public static ConditionInterface ne(String column, Object value) {
 		return new NotEqualsCondition(column, value);
 	}
@@ -51,7 +64,7 @@ public class Condition<Value> {
 	}
 
 	/**
-	 * >=
+	 * `column >= value` expression.
 	 *
 	 * @param <Value>
 	 * @param column
@@ -63,7 +76,7 @@ public class Condition<Value> {
 	}
 
 	/**
-	 * <=
+	 * `column <= value` expression.
 	 *
 	 * @param <Value>
 	 * @param column
@@ -88,10 +101,38 @@ public class Condition<Value> {
 		return new InCondition(column, values);
 	}
 
+	/**
+	 * <pre>
+	 *	.where(in("a", Arrays.asList(1,2,3)));
+	 * </pre>
+	 *
+	 * Query:
+	 * <pre>
+	 * 	WHERE a IN (1,2,3)
+	 * </pre>
+	 *
+	 * @param <Value>
+	 * @param column
+	 * @param values
+	 * @return
+	 */
 	public static <Value> ConditionInterface not_in(String column, @NonNull List<Object> values) {
 		return new NotInCondition(column, values);
 	}
 
+	/**
+	 * <pre>
+	 * 	.where(like(column, value))
+	 * </pre>
+	 *
+	 * <pre>
+	 * 	column LIKE value
+	 * </pre>
+	 *
+	 * @param column
+	 * @param value
+	 * @return
+	 */
 	public static ConditionInterface like(String column, String value) {
 		return new LikeCondition(column, value);
 	}
@@ -106,6 +147,7 @@ public class Condition<Value> {
 			this.values = values;
 		}
 
+		@Override
 		public List<Object> getParams() {
 			return values;
 		}
@@ -161,8 +203,10 @@ public class Condition<Value> {
 			this.rhs = rhs;
 		}
 
+		@Override
 		abstract public String getTerm(String identifierQuoteString);
 
+		@Override
 		public List<Object> getParams() {
 			if (rhs == null) {
 				return Arrays.asList();

@@ -9,55 +9,81 @@ import java.util.logging.Logger;
 import me.geso.dbinspector.Inspector;
 import me.geso.dbinspector.Table;
 
+/**
+ * This is an abstract class for writing Hana's schema generator.
+ *
+ * User can implement this class.
+ *
+ * @author Tokuhiro Matsuno <tokuhirom@gmail.com>
+ */
 public abstract class AbstractSchemaGenerator {
 
-    static final Logger logger = Logger.getLogger(AbstractSchemaGenerator.class.toString());
+	static final Logger logger = Logger.getLogger(AbstractSchemaGenerator.class.toString());
 
-    private final Inspector inspector;
+	private final Inspector inspector;
 
-    private final Configuration configuration;
+	private final Configuration configuration;
 
-    public Configuration getConfiguration() {
-	return this.configuration;
-    }
-
-    public AbstractSchemaGenerator(Inspector inspector, Configuration configuration) {
-	this.inspector = inspector;
-	this.configuration = configuration;
-    }
-
-    public void generateAll() throws SQLException, IOException {
-	for (Table table : inspector.getTables()) {
-	    generateAbstractRow(table);
-	    generateConcreteRow(table);
+	public Configuration getConfiguration() {
+		return this.configuration;
 	}
-    }
 
-    private void generateConcreteRow(Table table) throws SQLException,
-	    IOException {
-	Path path = configuration.outputConcreteRowFilePath(table.getName());
-	if (path.toFile().canRead()) {
-	    logger.log(Level.INFO, "{0} is already exists. Skipping...", path.toString());
-	} else {
-	    logger.log(Level.INFO, "Rendering {0}", path.toString());
-	    String code = this.renderConcreteRow(table);
-	    path.getParent().toFile().mkdirs();
-	    Files.write(code.getBytes(), path.toFile());
+	public AbstractSchemaGenerator(Inspector inspector, Configuration configuration) {
+		this.inspector = inspector;
+		this.configuration = configuration;
 	}
-    }
 
+	/**
+	 * Generate all classes.
+	 *
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	public void generateAll() throws SQLException, IOException {
+		for (Table table : inspector.getTables()) {
+			generateAbstractRow(table);
+			generateConcreteRow(table);
+		}
+	}
 
-    private void generateAbstractRow(Table table) throws SQLException,
-	    IOException {
-	Path path = configuration.outputAbstractRowFilePath(table.getName());
-	logger.log(Level.INFO, "Rendering {0}", path.toString());
-	String code = this.renderAbstractRow(table);
-	path.getParent().toFile().mkdirs();
-	Files.write(code.getBytes(), path.toFile());
-    }
+	private void generateConcreteRow(Table table) throws SQLException,
+			IOException {
+		Path path = configuration.outputConcreteRowFilePath(table.getName());
+		if (path.toFile().canRead()) {
+			logger.log(Level.INFO, "{0} is already exists. Skipping...", path.toString());
+		} else {
+			logger.log(Level.INFO, "Rendering {0}", path.toString());
+			String code = this.renderConcreteRow(table);
+			path.getParent().toFile().mkdirs();
+			Files.write(code.getBytes(), path.toFile());
+		}
+	}
 
-    public abstract String renderAbstractRow(Table table) throws SQLException;
+	private void generateAbstractRow(Table table) throws SQLException,
+			IOException {
+		Path path = configuration.outputAbstractRowFilePath(table.getName());
+		logger.log(Level.INFO, "Rendering {0}", path.toString());
+		String code = this.renderAbstractRow(table);
+		path.getParent().toFile().mkdirs();
+		Files.write(code.getBytes(), path.toFile());
+	}
 
-    public abstract String renderConcreteRow(Table table) throws SQLException;
+	/**
+	 * Render abstract row class like `proj.abstractrows.AbstractMember`.
+	 *
+	 * @param table
+	 * @return
+	 * @throws SQLException
+	 */
+	public abstract String renderAbstractRow(Table table) throws SQLException;
+
+	/**
+	 * Render abstract row class like `proj.abstractrows.AbstractMember`.
+	 *
+	 * @param table
+	 * @return
+	 * @throws SQLException
+	 */
+	public abstract String renderConcreteRow(Table table) throws SQLException;
 
 }

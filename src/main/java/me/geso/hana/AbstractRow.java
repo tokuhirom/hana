@@ -19,6 +19,12 @@ public abstract class AbstractRow {
 	protected Set<String> dirtyColumns = new HashSet<>();
 	protected Set<String> columns = new HashSet<>();
 
+	/**
+	 * Get a table name from the row class.
+	 *
+	 * @param klass Class object for detecting table name.
+	 * @return Table name for <i>klass</i>.
+	 */
 	public static final String getTableName(Class<? extends AbstractRow> klass) {
 		Class<?> k = klass;
 		while (k != null) {

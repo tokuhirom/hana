@@ -6,7 +6,6 @@
 package me.geso.hana;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +27,23 @@ public class Update {
 		this.table = table;
 	}
 
+	/**
+	 * Add parameter for SET clause.
+	 *
+	 * @param column
+	 * @param value
+	 * @return Object itself. You can use method chaining.
+	 */
 	public Update set(String column, String value) {
 		set.put(column, value);
 		return this;
 	}
 
 	/**
-	 * Set the where clause.
+	 * Set the Condition to WHERE clause.
 	 *
 	 * @param condition
-	 * @return
+	 * @return Object itself.
 	 */
 	public Update where(ConditionInterface condition) {
 		this.condition = condition;
@@ -80,8 +86,5 @@ public class Update {
 		return new Query(sql, params);
 	}
 
-	public PreparedStatement prepare(Connection connection) throws SQLException, HanaException {
-		return this.build(connection).prepare(connection);
-	}
 
 }

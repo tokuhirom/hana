@@ -1,7 +1,6 @@
 package me.geso.hana.generator.basic;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -200,7 +199,7 @@ public class AbstractRowClassGenerator extends Renderer {
 					pk.getColumnName(),
 					pk.getColumnName());
 		}
-		append("		.first(connection);\n");
+		append("		.stream(connection).findFirst();\n");
 		append("	}\n");
 		append("\n");
 	}

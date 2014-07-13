@@ -24,24 +24,53 @@ public class Select<T extends AbstractRow> {
 		this.klass = klass;
 	}
 
+	/**
+	 * Create new Select object.
+	 *
+	 * <pre>
+	 * 	Select.from(Member.class)
+	 * 		.where(eq("id", id))
+	 * 		.stream(connection)
+	 *		.collect(Collections.toList());
+	 * </pre>
+	 *
+	 * @param <T> The row object.
+	 * @param klass Class object for row class.
+	 * @return Object itself.
+	 */
 	public static <T extends AbstractRow> Select<T> from(Class<T> klass) {
 		return new Select(klass);
 	}
 
+	/**
+	 * Set ORDER BY clause.
+	 *
+	 * @param orderBy
+	 * @return
+	 */
 	public Select<T> orderBy(String orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
 
+	/**
+	 * Set condition to WHERE clause.
+	 *
+	 * @param condition
+	 * @return
+	 */
 	public Select<T> where(ConditionInterface condition) {
 		this.condition = condition;
 		return this;
 	}
 
-	public List<T> getResultList(Connection connection) throws SQLException, HanaException {
-		return this.stream(connection).collect(Collectors.toList());
-	}
-
+	/**
+	 * Create Java8 Stream from Select statement. This method executes SQL in the database.
+	 *
+	 * @param connection
+	 * @return the stream.
+	 * @throws SQLException
+	 */
 	public Stream<T> stream(Connection connection) throws SQLException {
 		final Query query = this.build(connection);
 		PreparedStatement statement = query.prepare(connection);
@@ -51,10 +80,23 @@ public class Select<T extends AbstractRow> {
 				Spliterators.spliteratorUnknownSize(iterator, 0), false);
 	}
 
+	/**
+	 * Build query object from the Select object.
+	 *
+	 * @param connection
+	 * @return
+	 * @throws SQLException
+	 */
 	public Query build(Connection connection) throws SQLException {
 		return this.build(connection.getMetaData().getIdentifierQuoteString());
 	}
 
+	/**
+	 * Build query object from the Select object.
+	 *
+	 * @param identifierQuoteString
+	 * @return
+	 */
 	public Query build(String identifierQuoteString) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM ");
@@ -71,10 +113,14 @@ public class Select<T extends AbstractRow> {
 		return new Query(buf.toString(), params);
 	}
 
-	public Optional<T> first(Connection connection) throws HanaException, SQLException {
-		return this.stream(connection).findFirst();
-	}
-
+	/**
+	 * Count rows selected by this Select object.
+	 *
+	 * @param connection
+	 * @return The number of selectable rows.
+	 * @throws SQLException
+	 * @throws HanaException
+	 */
 	public long count(Connection connection) throws SQLException, HanaException {
 		final Query query = this.build(connection);
 		final String sql = "SELECT COUNT(*) FROM (" + query.getQuery() + ")";

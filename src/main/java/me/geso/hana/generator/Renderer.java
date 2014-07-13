@@ -1,7 +1,6 @@
 package me.geso.hana.generator;
 
 import java.sql.SQLException;
-import me.geso.dbinspector.Table;
 
 public abstract class Renderer {
 

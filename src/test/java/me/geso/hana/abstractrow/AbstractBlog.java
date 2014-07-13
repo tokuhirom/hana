@@ -119,7 +119,7 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 	public static Optional<me.geso.hana.row.Blog> find(Connection connection, long id) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Blog.class)
 		.where(me.geso.hana.Condition.eq("id", id))
-		.first(connection);
+		.stream(connection).findFirst();
 	}
 
 	public Optional<me.geso.hana.row.Blog> refetch(Connection connection) throws SQLException, HanaException {

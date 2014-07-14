@@ -104,7 +104,7 @@ public abstract class AbstractRow {
 		return condition;
 	}
 
-	abstract protected String getColumn(String column) throws SQLException;
+	abstract protected String getColumn(String column) throws SQLException, HanaException;
 
 	abstract public String getTableName();
 

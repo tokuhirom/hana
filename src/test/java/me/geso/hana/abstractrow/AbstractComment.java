@@ -88,7 +88,7 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 	}
 
 	@Override
-	public String getColumn(String column) throws SQLException {
+	public String getColumn(String column) throws SQLException, HanaException {
 		switch (column) {
 			case "id":
 				return String.valueOf(this.id);
@@ -100,6 +100,8 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 				return String.valueOf(this.data);
 			case "created_on":
 				return String.valueOf(this.created_on);
+		default:
+			throw new HanaException("Unknown column: " + column);
 		}
 	}
 

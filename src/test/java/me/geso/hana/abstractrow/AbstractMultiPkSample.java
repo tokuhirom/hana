@@ -77,7 +77,7 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 	}
 
 	@Override
-	public String getColumn(String column) throws SQLException {
+	public String getColumn(String column) throws SQLException, HanaException {
 		switch (column) {
 			case "id1":
 				return String.valueOf(this.id1);
@@ -87,6 +87,8 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 				return String.valueOf(this.title);
 			case "email":
 				return String.valueOf(this.email);
+		default:
+			throw new HanaException("Unknown column: " + column);
 		}
 	}
 

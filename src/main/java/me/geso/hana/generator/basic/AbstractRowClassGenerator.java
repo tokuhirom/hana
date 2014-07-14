@@ -254,7 +254,7 @@ public class AbstractRowClassGenerator extends Renderer {
 
 	private void renderGetColumn(Table table) throws SQLException {
 		append("	@Override\n");
-		append("	public String getColumn(String column) throws SQLException {\n");
+		append("	public String getColumn(String column) throws SQLException, HanaException {\n");
 		append("		switch (column) {\n");
 		table.getColumns()
 				.stream()
@@ -264,6 +264,8 @@ public class AbstractRowClassGenerator extends Renderer {
 							appendf("				return String.valueOf(this.%s);\n",
 									column.getName());
 						});
+		append("		default:\n");
+		append("			throw new HanaException(\"Unknown column: \" + column);\n");
 		append("		}\n");
 		append("	}\n");
 		append("\n\n");

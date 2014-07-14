@@ -59,8 +59,7 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 			} // switch
 		} // for
 	}
-	@Override
-	public void insert(Connection connection) throws SQLException, HanaException {
+	public me.geso.hana.row.Blog insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
 		for (String col: dirtyColumns) {
 			switch (col) {
@@ -93,6 +92,7 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 		}
 		columns.addAll(dirtyColumns);
 		dirtyColumns.clear();
+		return (me.geso.hana.row.Blog)this;
 	}
 
 	@Override
@@ -230,6 +230,10 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 	
 	public Stream<me.geso.hana.row.Entry> searchEntries(Connection connection) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Entry.class).where(me.geso.hana.Condition.eq("blog_id", this.id)).stream(connection);
+	}
+	
+	public Optional<me.geso.hana.row.Member> retrieveMember(Connection connection) throws SQLException, HanaException {
+		return Select.from(me.geso.hana.row.Member.class).where(me.geso.hana.Condition.eq("id", this.member_id)).stream(connection).findFirst();
 	}
 	
 }

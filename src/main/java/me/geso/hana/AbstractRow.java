@@ -51,7 +51,11 @@ public abstract class AbstractRow {
 	}
 
 	public void delete(Connection connection) throws SQLException, HanaException {
-		for (String pk : this.getPrimaryKeys()) {
+		List<String> primaryKeys = this.getPrimaryKeys();
+		if (primaryKeys.isEmpty()) {
+			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
+		}
+		for (String pk : primaryKeys) {
 			if (!(this.columns.contains(pk) || this.dirtyColumns
 					.contains(pk))) {
 				throw new HanaException("The row doesn't contain primary key; " + pk);
@@ -71,10 +75,17 @@ public abstract class AbstractRow {
 	}
 
 	public void update(Connection connection) throws SQLException, HanaException {
+		List<String> primaryKeys = this.getPrimaryKeys();
+		if (primaryKeys.isEmpty()) {
+			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
+		}
+
+		// TODO test multiple column pk.
 		Update update = new Update(AbstractRow.getTableName(this.getClass()));
 		for (String column : this.dirtyColumns) {
 			update.set(column, this.getColumn(column));
 		}
+		// TODO set WHERE clause.
 		PreparedStatement stmt = update.build(connection).prepare(connection);
 		stmt.executeUpdate();
 	}
@@ -94,7 +105,4 @@ public abstract class AbstractRow {
 	}
 
 	abstract public void initialize(ResultSet rs) throws SQLException;
-
-	abstract public void insert(Connection connection) throws SQLException, HanaException;
-
 }

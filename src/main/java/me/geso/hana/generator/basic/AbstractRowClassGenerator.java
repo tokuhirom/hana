@@ -68,8 +68,10 @@ public class AbstractRowClassGenerator extends Renderer {
 		renderInitialize(table);
 		renderInsert(table);
 		renderGetColumn(table);
-		renderFind(table);
-		renderRefetch(table);
+		if (table.getPrimaryKeys().size() > 0) {
+			renderFind(table);
+			renderRefetch(table);
+		}
 		renderCount(table);
 		renderToString(table);
 
@@ -79,13 +81,59 @@ public class AbstractRowClassGenerator extends Renderer {
 					table,
 					column);
 		}
-		table.getExportedKeys().stream().forEach(e -> {
+		List<ExportedKey> exportedKeys = table.getExportedKeys();
+		exportedKeys.stream().filter(key -> {
+			/*
+			 * If the exported keys reference same table in two or more keys, we can't create the countXXX() method and
+			 * searchXXX method. Because these methods conflict!
+			 * 
+			 * For example, there is a follow table.
+			 *
+			 * CREATE TABLE follow (
+			 *   from_member_id INT UNSIGNED NOT NULL,
+			 *   to_member_id INT UNSIGNED NOT NULL,
+			 *   FOREIGN KEY(to_member_id) REFERENCES member(id) ON DELETE CASCADE,
+			 *   FOREIGN KEY(from_member_id) REFERENCES member(id) ON DELETE CASCADE,
+			 *   UNIQUE (from_member_id, to_member_id),
+			 *   INDEX (to_member_id)
+			 * );
+			 *
+			 * In this case, hana will create two AbstractMember#countFollows() without this filter.
+			 */
+			return exportedKeys.stream()
+					.filter(y -> y.getPrimaryKeyTable().equals(key.getPrimaryKeyTable()))
+					.count() == 1;
+		}).forEach(e -> {
 			renderHasManyCount(e); // countJobs
 			renderHasManySearchChildren(e); // searchJobs
 		});
-		table.getImportedKeys().stream().forEach(e -> {
+
+		List<ImportedKey> importedKeys = table.getImportedKeys();
+		importedKeys.stream().filter(key -> {
+			/*
+			 * If the exported keys reference same table in two or more keys, we can't create the createXXX() method.
+			 * Because these methods conflict!
+			 *
+			 * For example, there is a follow table.
+			 *
+			 * CREATE TABLE follow (
+			 *   from_member_id INT UNSIGNED NOT NULL,
+			 *   to_member_id INT UNSIGNED NOT NULL,
+			 *   FOREIGN KEY(to_member_id) REFERENCES member(id) ON DELETE CASCADE,
+			 *   FOREIGN KEY(from_member_id) REFERENCES member(id) ON DELETE CASCADE,
+			 *   UNIQUE (from_member_id, to_member_id),
+			 *   INDEX (to_member_id)
+			 * );
+			 *
+			 * In this case, hana will create two AbstractFollow#retrieveMember() without this filter.
+			 */
+			return importedKeys.stream()
+					.filter(y -> y.getPrimaryKeyTable().equals(key.getPrimaryKeyTable()))
+					.count() == 1;
+		}).forEach(e -> {
 			renderHasARetrieve(e); // retrieveRepository
 		});
+
 		append("}\n");
 		return this.toString();
 	}
@@ -345,8 +393,8 @@ public class AbstractRowClassGenerator extends Renderer {
 	}
 
 	private void renderInsert(Table table) throws SQLException {
-		append("	@Override\n");
-		append("	public void insert(Connection connection) throws SQLException, HanaException {\n");
+		appendf("	public %s insert(Connection connection) throws SQLException, HanaException {\n",
+				configuration.generateConcreteFullClassName(table.getName()));
 		this.beforeInsertHooks.stream().forEach(code -> {
 			code.run(table);
 		});
@@ -380,6 +428,8 @@ public class AbstractRowClassGenerator extends Renderer {
 		}
 		append("		columns.addAll(dirtyColumns);\n");
 		append("		dirtyColumns.clear();\n");
+		appendf("		return (%s)this;\n",
+				configuration.generateConcreteFullClassName(table.getName()));
 		append("	}\n\n");
 	}
 

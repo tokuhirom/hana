@@ -53,8 +53,7 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 			} // switch
 		} // for
 	}
-	@Override
-	public void insert(Connection connection) throws SQLException, HanaException {
+	public me.geso.hana.row.Member insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
 		for (String col: dirtyColumns) {
 			switch (col) {
@@ -81,6 +80,7 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 		}
 		columns.addAll(dirtyColumns);
 		dirtyColumns.clear();
+		return (me.geso.hana.row.Member)this;
 	}
 
 	@Override

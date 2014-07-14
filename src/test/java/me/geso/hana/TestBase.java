@@ -15,6 +15,7 @@ public class TestBase {
 		conn = DriverManager
 				.getConnection("jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE;TRACE_LEVEL_SYSTEM_OUT=3");
 		conn.prepareStatement("DROP TABLE IF EXISTS member").executeUpdate();
+		conn.prepareStatement("DROP TABLE IF EXISTS follow").executeUpdate();
 		conn.prepareStatement(
 				"CREATE TABLE member (id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), created_on INTEGER UNSIGNED, updated_on INTEGER UNSIGNED)")
 				.execute();
@@ -26,6 +27,20 @@ public class TestBase {
 				.execute();
 		conn.prepareStatement(
 				"CREATE TABLE IF NOT EXISTS comment (id INTEGER AUTO_INCREMENT PRIMARY KEY, entry_id INT UNSIGNED NOT NULL, body VARCHAR(255) DEFAULT NULL, data LONGBLOB, created_on INTEGER UNSIGNED, FOREIGN KEY(entry_id) REFERENCES entry(id) ON DELETE CASCADE)")
+				.execute();
+		conn.prepareStatement(
+				"CREATE TABLE IF NOT EXISTS follow ("
+				+ "from_member_id INTEGER UNSIGNED NOT NULL,"
+				+ " to_member_id INTEGER UNSIGNED NOT NULL,"
+				+ " created_on INTEGER UNSIGNED,"
+				+ " FOREIGN KEY(from_member_id) REFERENCES member(id) ON DELETE CASCADE,"
+				+ "  FOREIGN KEY(to_member_id) REFERENCES member(id) ON DELETE CASCADE"
+				// + " UNIQUE (from_member_id, to_member_id)"
+				// + " INDEX (to_member_id)"
+				+ ")")
+				.execute();
+		conn.prepareStatement(
+				"CREATE UNIQUE INDEX ON follow (from_member_id, to_member_id)")
 				.execute();
 		conn.prepareStatement("DELETE FROM member").executeUpdate();
 	}

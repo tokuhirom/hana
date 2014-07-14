@@ -320,8 +320,8 @@ public class Condition {
 
 		@Override
 		public String getTerm(String identifierQuoteString) {
-			return "( " + this.a.getTerm(identifierQuoteString) + " ) OR ( "
-					+ this.b.getTerm(identifierQuoteString) + " )";
+			return "(( " + this.a.getTerm(identifierQuoteString) + " ) OR ( "
+					+ this.b.getTerm(identifierQuoteString) + " ))";
 		}
 
 		@Override
@@ -345,8 +345,8 @@ public class Condition {
 
 		@Override
 		public String getTerm(String identifierQuoteString) {
-			return "( " + this.a.getTerm(identifierQuoteString) + " ) AND ( "
-					+ this.b.getTerm(identifierQuoteString) + " )";
+			return "(( " + this.a.getTerm(identifierQuoteString) + " ) AND ( "
+					+ this.b.getTerm(identifierQuoteString) + " ))";
 		}
 
 		@Override

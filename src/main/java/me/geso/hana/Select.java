@@ -54,13 +54,24 @@ public class Select<T extends AbstractRow> {
 	}
 
 	/**
-	 * Set condition to WHERE clause.
+	 * Set condition to WHERE clause. If the statement has a where clause, it makes AND clause.
+	 *
+	 * <pre>
+	 * 	Select.from("member").where(eq("email", email)).where(eq("status", 2)).build(conn)
+	 * </pre> makes
+	 * <pre>
+	 * 	SELECT * FROM member WHERE email=? AND status=?
+	 * </pre>
 	 *
 	 * @param condition
 	 * @return
 	 */
 	public Select<T> where(ConditionInterface condition) {
-		this.condition = condition;
+		if (this.condition != null) {
+			this.condition = this.condition.and(condition);
+		} else {
+			this.condition = condition;
+		}
 		return this;
 	}
 

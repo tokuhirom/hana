@@ -89,14 +89,14 @@ public class ConditionTest extends TestBase {
 	@Test
 	public void testAnd() {
 		ConditionInterface result = Condition.le("id", 5963).and(Condition.eq("id", 3));
-		assertEquals("( id<=? ) AND ( id=? )", result.getTerm(""));
+		assertEquals("(( id<=? ) AND ( id=? ))", result.getTerm(""));
 		assertEquals(Arrays.asList(5963, 3), result.getParams());
 	}
 
 	@Test
 	public void testOr() {
 		ConditionInterface result = Condition.le("id", 5963).or(Condition.eq("id", 3));
-		assertEquals("( id<=? ) OR ( id=? )", result.getTerm(""));
+		assertEquals("(( id<=? ) OR ( id=? ))", result.getTerm(""));
 		assertEquals(Arrays.asList(5963, 3), result.getParams());
 	}
 

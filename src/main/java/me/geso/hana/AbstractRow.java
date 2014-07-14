@@ -51,22 +51,9 @@ public abstract class AbstractRow {
 	}
 
 	public void delete(Connection connection) throws SQLException, HanaException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		if (primaryKeys.isEmpty()) {
-			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
-		}
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk) || this.dirtyColumns
-					.contains(pk))) {
-				throw new HanaException("The row doesn't contain primary key; " + pk);
-			}
-		}
-
 		// Delete column from database.
 		Delete delete = Delete.from(this.getTableName());
-		for (String column : this.getPrimaryKeys()) {
-			delete.where(eq(column, this.getColumn(column)));
-		}
+		delete.where(this.condition());
 		PreparedStatement stmt = delete.build(connection).prepare(connection);
 		int deleted = stmt.executeUpdate();
 		if (deleted != 1) {
@@ -85,9 +72,37 @@ public abstract class AbstractRow {
 		for (String column : this.dirtyColumns) {
 			update.set(column, this.getColumn(column));
 		}
-		// TODO set WHERE clause.
+		update.where(this.condition());
 		PreparedStatement stmt = update.build(connection).prepare(connection);
-		stmt.executeUpdate();
+		int affectedRows = stmt.executeUpdate();
+		if (affectedRows != 1) {
+			throw new HanaException("Cannot update rows!: " + affectedRows);
+		}
+	}
+
+	public ConditionInterface condition() throws HanaNoPrimaryKeyException, HanaException, SQLException {
+		List<String> primaryKeys = this.getPrimaryKeys();
+		if (primaryKeys.isEmpty()) {
+			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
+		}
+		for (String pk : primaryKeys) {
+			if (!(this.columns.contains(pk) || this.dirtyColumns
+					.contains(pk))) {
+				throw new HanaException("The row doesn't contain primary key; " + pk);
+			}
+		}
+
+		// TODO We should depercate getColumn.
+		ConditionInterface condition = null;
+		for (String column : this.getPrimaryKeys()) {
+			ConditionInterface eqExpr = eq(column, this.getColumn(column));
+			if (condition == null) {
+				condition = eqExpr;
+			} else {
+				condition = condition.and(eqExpr);
+			}
+		}
+		return condition;
 	}
 
 	abstract protected String getColumn(String column) throws SQLException;

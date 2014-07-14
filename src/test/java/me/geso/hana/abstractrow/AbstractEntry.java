@@ -51,8 +51,6 @@ public abstract class AbstractEntry extends me.geso.hana.AbstractRow {
 			case "updated_on":
 				this.updated_on = rs.getLong(i);
 				break;
-			default:
-				this.setExtraColumn(label, rs.getString(i));
 			} // switch
 		} // for
 	}
@@ -102,8 +100,6 @@ public abstract class AbstractEntry extends me.geso.hana.AbstractRow {
 				return String.valueOf(this.created_on);
 			case "updated_on":
 				return String.valueOf(this.updated_on);
-			default:
-				return this.getExtraColumn(column);
 		}
 	}
 

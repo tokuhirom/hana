@@ -14,7 +14,6 @@ import me.geso.hana.annotation.Table;
 
 public abstract class AbstractRow {
 
-	private final Map<String, String> extraColumns = new HashMap<>();
 	protected boolean inDatabase = false;
 	protected Set<String> dirtyColumns = new HashSet<>();
 	protected Set<String> columns = new HashSet<>();
@@ -109,15 +108,7 @@ public abstract class AbstractRow {
 
 	abstract public String getTableName();
 
-	public String getExtraColumn(String name) {
-		return extraColumns.get(name);
-	}
-
 	abstract public List<String> getPrimaryKeys();
-
-	public void setExtraColumn(String name, String value) {
-		extraColumns.put(name, value);
-	}
 
 	abstract public void initialize(ResultSet rs) throws SQLException;
 }

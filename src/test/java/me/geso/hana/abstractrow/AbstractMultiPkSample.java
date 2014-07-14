@@ -48,8 +48,6 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 			case "email":
 				this.email = rs.getString(i);
 				break;
-			default:
-				this.setExtraColumn(label, rs.getString(i));
 			} // switch
 		} // for
 	}
@@ -89,8 +87,6 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 				return String.valueOf(this.title);
 			case "email":
 				return String.valueOf(this.email);
-			default:
-				return this.getExtraColumn(column);
 		}
 	}
 

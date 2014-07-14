@@ -264,8 +264,6 @@ public class AbstractRowClassGenerator extends Renderer {
 							appendf("				return String.valueOf(this.%s);\n",
 									column.getName());
 						});
-		appendf("			default:\n");
-		appendf("				return this.getExtraColumn(column);\n");
 		append("		}\n");
 		append("	}\n");
 		append("\n\n");
@@ -290,8 +288,6 @@ public class AbstractRowClassGenerator extends Renderer {
 											.getDataType()));
 							appendf("				break;\n");
 						});
-		append("			default:\n");
-		append("				this.setExtraColumn(label, rs.getString(i));\n");
 		append("			} // switch\n");
 		append("		} // for\n");
 		append("	}\n");

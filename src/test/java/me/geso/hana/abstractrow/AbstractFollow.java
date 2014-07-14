@@ -45,8 +45,6 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 			case "created_on":
 				this.created_on = rs.getLong(i);
 				break;
-			default:
-				this.setExtraColumn(label, rs.getString(i));
 			} // switch
 		} // for
 	}
@@ -81,8 +79,6 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 				return String.valueOf(this.to_member_id);
 			case "created_on":
 				return String.valueOf(this.created_on);
-			default:
-				return this.getExtraColumn(column);
 		}
 	}
 

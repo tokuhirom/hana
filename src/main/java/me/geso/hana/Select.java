@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Spliterators;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.ToString;
@@ -15,7 +16,7 @@ import lombok.ToString;
 // TODO support innerJoin?
 // TODO support leftOuterJoin?
 @ToString
-public class Select<T extends AbstractRow> {
+public class Select<T extends AbstractRow> implements Cloneable {
 
 	private final String table;
 	private String orderBy = null;
@@ -155,6 +156,41 @@ public class Select<T extends AbstractRow> {
 		return this.build(connection.getMetaData().getIdentifierQuoteString());
 	}
 
+	public Page<T> paginate(long currentPage, long entriesPerPage, Connection connection) throws SQLException {
+		List<T> rows = this.limit(entriesPerPage + 1)
+				.offset(entriesPerPage * (currentPage - 1))
+				.stream(connection).collect(Collectors.toList());
+
+		boolean hasNext = false;
+
+		if (rows.size() == entriesPerPage + 1) {
+			// there is next page.
+			rows.remove(rows.size() - 1);
+			hasNext = true;
+		}
+
+		return new Page<T>(entriesPerPage, currentPage, hasNext, rows);
+	}
+
+	/**
+	 * I *don't* recommend to use this method. This method makes your application slow.
+	 *
+	 * @param currentPage
+	 * @param entriesPerPage
+	 * @param connection
+	 * @return
+	 * @throws SQLException
+	 * @throws me.geso.hana.HanaException
+	 */
+	public PageWithTotalEntries<T> paginateWithTotalEntries(long currentPage, long entriesPerPage, Connection connection) throws SQLException, HanaException {
+		long totalEntries = this.count(connection);
+		List<T> rows = this.limit(entriesPerPage)
+				.offset(entriesPerPage * (currentPage - 1))
+				.stream(connection).collect(Collectors.toList());
+
+		return new PageWithTotalEntries<>(totalEntries, entriesPerPage, currentPage, rows);
+	}
+
 	/**
 	 * Build query object from the Select object.
 	 *
@@ -215,5 +251,6 @@ public class Select<T extends AbstractRow> {
 			throw new HanaException("Cannot get count by : " + sql);
 		}
 	}
+
 
 }

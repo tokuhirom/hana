@@ -137,6 +137,20 @@ public class Condition {
 		return new LikeCondition(column, value);
 	}
 
+	/**
+	 * Create AND expression from 2 condition object.
+	 *
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static ConditionInterface and(ConditionInterface a, @NonNull ConditionInterface b) {
+		if (a == null) {
+			return b;
+		}
+		return new AndCondition(a, b);
+	}
+
 	abstract static class ListBinaryCondition implements ConditionInterface {
 
 		protected String column;

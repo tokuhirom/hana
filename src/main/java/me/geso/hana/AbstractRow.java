@@ -79,31 +79,10 @@ public abstract class AbstractRow {
 		}
 	}
 
-	public ConditionInterface condition() throws HanaNoPrimaryKeyException, HanaException, SQLException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		if (primaryKeys.isEmpty()) {
-			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
-		}
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk) || this.dirtyColumns
-					.contains(pk))) {
-				throw new HanaException("The row doesn't contain primary key; " + pk);
-			}
-		}
+	abstract public ConditionInterface condition() throws HanaException, SQLException;
 
-		// TODO We should depercate getColumn.
-		ConditionInterface condition = null;
-		for (String column : this.getPrimaryKeys()) {
-			ConditionInterface eqExpr = eq(column, this.getColumn(column));
-			if (condition == null) {
-				condition = eqExpr;
-			} else {
-				condition = condition.and(eqExpr);
-			}
-		}
-		return condition;
-	}
-
+	// TODO remove me.
+	@Deprecated
 	abstract protected String getColumn(String column) throws SQLException, HanaException;
 
 	abstract public String getTableName();

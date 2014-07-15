@@ -52,6 +52,7 @@ public class AbstractRowClassGenerator extends Renderer {
 		append("\n");
 		append("import me.geso.hana.annotation.Table;\n");
 		append("import me.geso.hana.Insert;\n");
+		append("import me.geso.hana.ConditionInterface;\n");
 		append("import me.geso.hana.HanaException;\n");
 		append("import me.geso.hana.Select;\n");
 		append("\n");
@@ -73,6 +74,7 @@ public class AbstractRowClassGenerator extends Renderer {
 			renderRefetch(table);
 		}
 		renderCount(table);
+		renderCondition(table);
 		renderToString(table);
 
 		for (Column column : table.getColumns()) {
@@ -203,8 +205,33 @@ public class AbstractRowClassGenerator extends Renderer {
 
 	private void renderCount(Table table) throws SQLException {
 		appendf("	public static long count(Connection connection) throws SQLException, HanaException {\n");
-		appendf("		return Select.from(%s.class).count(connection);",
+		appendf("		return Select.from(%s.class).count(connection)\n;",
 				configuration.generateAbstractClassName(table.getName()));
+		appendf("	}\n");
+	}
+
+	private void renderCondition(Table table) throws SQLException {
+		List<PrimaryKey> primaryKeys = table.getPrimaryKeys();
+		appendf("	@Override\n");
+		appendf("	public ConditionInterface condition() throws SQLException, HanaException {\n");
+		if (primaryKeys.isEmpty()) {
+			appendf("		throw new me.geso.hana.HanaNoPrimaryKeyException(\"%s doesn't have a primary key\");",
+					table.getName());
+		} else {
+			appendf("		List<String> primaryKeys = this.getPrimaryKeys();\n");
+			appendf("		for (String pk : primaryKeys) {\n");
+			appendf("			if (!(this.columns.contains(pk))) {\n");
+			appendf("					throw new HanaException(\"The row doesn't contain primary key; \" + pk);");
+			appendf("			}\n");
+			appendf("		}\n");
+			appendf("\n");
+			appendf("		ConditionInterface condition = null;\n");
+			primaryKeys.stream().map(e -> e.getColumnName()).forEach(column -> {
+				appendf("		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq(\"%s\", this.%s()));\n",
+						column, configuration.generateGetterName(column));
+			});
+			appendf("		return condition;\n");
+		}
 		appendf("	}\n");
 	}
 

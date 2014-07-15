@@ -15,6 +15,7 @@ import javax.annotation.Generated;
 
 import me.geso.hana.annotation.Table;
 import me.geso.hana.Insert;
+import me.geso.hana.ConditionInterface;
 import me.geso.hana.HanaException;
 import me.geso.hana.Select;
 
@@ -125,7 +126,20 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 	}
 
 	public static long count(Connection connection) throws SQLException, HanaException {
-		return Select.from(AbstractBlog.class).count(connection);	}
+		return Select.from(AbstractBlog.class).count(connection)
+;	}
+	@Override
+	public ConditionInterface condition() throws SQLException, HanaException {
+		List<String> primaryKeys = this.getPrimaryKeys();
+		for (String pk : primaryKeys) {
+			if (!(this.columns.contains(pk))) {
+					throw new HanaException("The row doesn't contain primary key; " + pk);			}
+		}
+
+		ConditionInterface condition = null;
+		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id", this.getId()));
+		return condition;
+	}
        @Override
 	public String toString() {
 		return "AbstractBlog ["

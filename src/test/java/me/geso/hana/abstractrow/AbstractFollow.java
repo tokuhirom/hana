@@ -15,6 +15,7 @@ import javax.annotation.Generated;
 
 import me.geso.hana.annotation.Table;
 import me.geso.hana.Insert;
+import me.geso.hana.ConditionInterface;
 import me.geso.hana.HanaException;
 import me.geso.hana.Select;
 
@@ -86,7 +87,11 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 
 
 	public static long count(Connection connection) throws SQLException, HanaException {
-		return Select.from(AbstractFollow.class).count(connection);	}
+		return Select.from(AbstractFollow.class).count(connection)
+;	}
+	@Override
+	public ConditionInterface condition() throws SQLException, HanaException {
+		throw new me.geso.hana.HanaNoPrimaryKeyException("follow doesn't have a primary key");	}
        @Override
 	public String toString() {
 		return "AbstractFollow ["

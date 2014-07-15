@@ -75,6 +75,7 @@ public class AbstractRowClassGenerator extends Renderer {
 		}
 		renderCount(table);
 		renderCondition(table);
+		renderSetUpdate(table);
 		renderToString(table);
 
 		for (Column column : table.getColumns()) {
@@ -218,12 +219,12 @@ public class AbstractRowClassGenerator extends Renderer {
 			appendf("		throw new me.geso.hana.HanaNoPrimaryKeyException(\"%s doesn't have a primary key\");",
 					table.getName());
 		} else {
-			appendf("		List<String> primaryKeys = this.getPrimaryKeys();\n");
-			appendf("		for (String pk : primaryKeys) {\n");
-			appendf("			if (!(this.columns.contains(pk))) {\n");
-			appendf("					throw new HanaException(\"The row doesn't contain primary key; \" + pk);");
-			appendf("			}\n");
-			appendf("		}\n");
+			primaryKeys.stream().map(e -> e.getColumnName()).forEach(columnName -> {
+				appendf("		if (!this.%s) {\n", configuration.generateSelectedFlagName(columnName));
+				appendf("				throw new HanaException(\"The row doesn't contain *selected* primary key: %s\");\n",
+						columnName);
+				appendf("		}\n");
+			});
 			appendf("\n");
 			appendf("		ConditionInterface condition = null;\n");
 			primaryKeys.stream().map(e -> e.getColumnName()).forEach(column -> {
@@ -315,6 +316,9 @@ public class AbstractRowClassGenerator extends Renderer {
 									column.getName(),
 									configuration.getResultSetMethod(column
 											.getDataType()));
+							appendf("				this.%s = true;\n",
+									configuration.generateSelectedFlagName(column.getName())
+							);
 							appendf("				break;\n");
 						});
 		append("			} // switch\n");
@@ -338,6 +342,12 @@ public class AbstractRowClassGenerator extends Renderer {
 			appendf("=%s", defaultValue);
 		}
 		append(";\n\n");
+		// dirty flag
+		appendf("	private boolean %s;",
+				configuration.generateDirtyFlagName(column.getName()));
+		// selected flag
+		appendf("	private boolean %s;",
+				configuration.generateSelectedFlagName(column.getName()));
 
 		// getter
 		appendf("	public %s %s() {\n",
@@ -352,7 +362,7 @@ public class AbstractRowClassGenerator extends Renderer {
 				configuration.generateSetterName(column.getName()), javaType);
 		appendf("		this.%s = value;\n",
 				column.getName());
-		appendf("		this.dirtyColumns.add(\"%s\");\n", column.getName());
+		appendf("		%s = true;\n", configuration.generateDirtyFlagName(column.getName()));
 		appendf("		return (%s)this;\n", concreteClass);
 		append("	}\n");
 		append("\n");
@@ -380,6 +390,19 @@ public class AbstractRowClassGenerator extends Renderer {
 
 	public void addBeforeUpdateHook(TableHook hook) {
 		this.beforeUpdateHooks.add(hook);
+	}
+
+	private void renderSetUpdate(Table table) throws SQLException {
+		appendf("	@Override\n");
+		appendf("	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {\n");
+		table.getColumns().stream().map(column -> column.getName()).forEach(columnName -> {
+			appendf("		if (%s) {\n", configuration.generateDirtyFlagName(columnName));
+			appendf("			update.set(\"%s\", this.%s());\n",
+					columnName,
+					configuration.generateGetterName(columnName));
+			appendf("		}\n");
+		});
+		appendf("	}\n");
 	}
 
 	@FunctionalInterface
@@ -424,16 +447,13 @@ public class AbstractRowClassGenerator extends Renderer {
 			code.run(table);
 		});
 		append("		Insert insert = Insert.into(this.getTableName());\n");
-		append("		for (String col: dirtyColumns) {\n");
-		append("			switch (col) {\n");
-		for (Column column : table.getColumns()) {
-			appendf("			case \"%s\":\n", column.getName());
-			appendf("				insert.value(col, this.%s());\n",
-					configuration.generateGetterName(column.getName()));
-			appendf("				break;\n");
-		}
-		append("			}\n");
-		append("		}\n");
+		table.getColumns().stream().map(e -> e.getName()).forEach(columnName -> {
+			appendf("		if (%s) {\n", configuration.generateDirtyFlagName(columnName));
+			appendf("			insert.value(\"%s\", this.%s());\n",
+					columnName,
+					configuration.generateGetterName(columnName));
+			appendf("		}\n");
+		});
 
 		// fill auto increment value to row object.
 		Optional<Column> ai = table.getColumns().stream().filter(column -> {
@@ -444,15 +464,15 @@ public class AbstractRowClassGenerator extends Renderer {
 			appendf("		stmt.execute();\n");
 			appendf("		try (ResultSet rs = stmt.getGeneratedKeys();) {\n");
 			appendf("			if (rs.next()) {\n");
-			appendf("				this.%s(rs.getInt(1));\n", configuration.generateSetterName(ai.get().getName()));
+			// TODO We should add test case for 64bit int.
+			appendf("				this.%s(rs.getLong(1));\n", configuration.generateSetterName(ai.get().getName()));
+			appendf("				this.%s = true;\n", configuration.generateSelectedFlagName(ai.get().getName()));
 			appendf("			}\n");
 			appendf("		}\n");
 		} else {
 			appendf("		PreparedStatement stmt = insert.build(connection).prepare(connection);\n");
 			appendf("		stmt.executeUpdate();\n");
 		}
-		append("		columns.addAll(dirtyColumns);\n");
-		append("		dirtyColumns.clear();\n");
 		appendf("		return (%s)this;\n",
 				configuration.generateConcreteFullClassName(table.getName()));
 		append("	}\n\n");

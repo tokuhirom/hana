@@ -31,3 +31,8 @@ On h2, you can write a JDBC driver.
      jdbc:h2:mem:test;TRACE_LEVEL_FIlE=4;TRACE_LEVEL_SYSTEM_OUT=3
 
 
+## TODO
+
+  * Support pagination
+  * LIMIT, OFFSET
+  * Integration test with mysql

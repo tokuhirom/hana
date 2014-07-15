@@ -4,18 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import static me.geso.hana.Condition.eq;
 import me.geso.hana.annotation.Table;
 
 public abstract class AbstractRow {
 
 	protected boolean inDatabase = false;
-	protected Set<String> dirtyColumns = new HashSet<>();
 	protected Set<String> columns = new HashSet<>();
 
 	/**
@@ -37,18 +33,6 @@ public abstract class AbstractRow {
 				+ " does not annoted by @Table");
 	}
 
-	protected void addDirtyColumn(String name) {
-		dirtyColumns.add(name);
-	}
-
-	protected Set<String> getDirtyColumnSet() {
-		return dirtyColumns;
-	}
-
-	public boolean isModified() {
-		return this.dirtyColumns.size() > 0;
-	}
-
 	public void delete(Connection connection) throws SQLException, HanaException {
 		// Delete column from database.
 		Delete delete = Delete.from(this.getTableName());
@@ -68,16 +52,18 @@ public abstract class AbstractRow {
 
 		// TODO test multiple column pk.
 		Update update = new Update(AbstractRow.getTableName(this.getClass()));
-		for (String column : this.dirtyColumns) {
-			update.set(column, this.getColumn(column));
-		}
+		this.setUpdateParameters(update);
 		update.where(this.condition());
-		PreparedStatement stmt = update.build(connection).prepare(connection);
+
+		Query query = update.build(connection);
+		PreparedStatement stmt = query.prepare(connection);
 		int affectedRows = stmt.executeUpdate();
 		if (affectedRows != 1) {
 			throw new HanaException("Cannot update rows!: " + affectedRows);
 		}
 	}
+
+	abstract protected void setUpdateParameters(Update update) throws HanaException, SQLException;
 
 	abstract public ConditionInterface condition() throws HanaException, SQLException;
 

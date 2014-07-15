@@ -39,46 +39,45 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 			switch (label) {
 			case "id":
 				this.id = rs.getLong(i);
+				this._HaNa_selected_id = true;
 				break;
 			case "email":
 				this.email = rs.getString(i);
+				this._HaNa_selected_email = true;
 				break;
 			case "created_on":
 				this.created_on = rs.getLong(i);
+				this._HaNa_selected_created_on = true;
 				break;
 			case "updated_on":
 				this.updated_on = rs.getLong(i);
+				this._HaNa_selected_updated_on = true;
 				break;
 			} // switch
 		} // for
 	}
 	public me.geso.hana.row.Member insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
-		for (String col: dirtyColumns) {
-			switch (col) {
-			case "id":
-				insert.value(col, this.getId());
-				break;
-			case "email":
-				insert.value(col, this.getEmail());
-				break;
-			case "created_on":
-				insert.value(col, this.getCreatedOn());
-				break;
-			case "updated_on":
-				insert.value(col, this.getUpdatedOn());
-				break;
-			}
+		if (_HaNa_dirty_id) {
+			insert.value("id", this.getId());
+		}
+		if (_HaNa_dirty_email) {
+			insert.value("email", this.getEmail());
+		}
+		if (_HaNa_dirty_created_on) {
+			insert.value("created_on", this.getCreatedOn());
+		}
+		if (_HaNa_dirty_updated_on) {
+			insert.value("updated_on", this.getUpdatedOn());
 		}
 		PreparedStatement stmt = insert.build(connection).prepare(connection);
 		stmt.execute();
 		try (ResultSet rs = stmt.getGeneratedKeys();) {
 			if (rs.next()) {
-				this.setId(rs.getInt(1));
+				this.setId(rs.getLong(1));
+				this._HaNa_selected_id = true;
 			}
 		}
-		columns.addAll(dirtyColumns);
-		dirtyColumns.clear();
 		return (me.geso.hana.row.Member)this;
 	}
 
@@ -114,15 +113,28 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 ;	}
 	@Override
 	public ConditionInterface condition() throws SQLException, HanaException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk))) {
-					throw new HanaException("The row doesn't contain primary key; " + pk);			}
+		if (!this._HaNa_selected_id) {
+				throw new HanaException("The row doesn't contain *selected* primary key: id");
 		}
 
 		ConditionInterface condition = null;
 		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id", this.getId()));
 		return condition;
+	}
+	@Override
+	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {
+		if (_HaNa_dirty_id) {
+			update.set("id", this.getId());
+		}
+		if (_HaNa_dirty_email) {
+			update.set("email", this.getEmail());
+		}
+		if (_HaNa_dirty_created_on) {
+			update.set("created_on", this.getCreatedOn());
+		}
+		if (_HaNa_dirty_updated_on) {
+			update.set("updated_on", this.getUpdatedOn());
+		}
 	}
        @Override
 	public String toString() {
@@ -136,52 +148,52 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 	// Column: id BIGINT(19)
 	private long id;
 
-	public long getId() {
+	private boolean _HaNa_dirty_id;	private boolean _HaNa_selected_id;	public long getId() {
 		return this.id;
 	}
 
 	public me.geso.hana.row.Member setId(long value) {
 		this.id = value;
-		this.dirtyColumns.add("id");
+		_HaNa_dirty_id = true;
 		return (me.geso.hana.row.Member)this;
 	}
 
 	// Column: email VARCHAR(255)
 	private String email;
 
-	public String getEmail() {
+	private boolean _HaNa_dirty_email;	private boolean _HaNa_selected_email;	public String getEmail() {
 		return this.email;
 	}
 
 	public me.geso.hana.row.Member setEmail(String value) {
 		this.email = value;
-		this.dirtyColumns.add("email");
+		_HaNa_dirty_email = true;
 		return (me.geso.hana.row.Member)this;
 	}
 
 	// Column: created_on INTEGER(10)
 	private long created_on=Instant.now().getEpochSecond();
 
-	public long getCreatedOn() {
+	private boolean _HaNa_dirty_created_on;	private boolean _HaNa_selected_created_on;	public long getCreatedOn() {
 		return this.created_on;
 	}
 
 	public me.geso.hana.row.Member setCreatedOn(long value) {
 		this.created_on = value;
-		this.dirtyColumns.add("created_on");
+		_HaNa_dirty_created_on = true;
 		return (me.geso.hana.row.Member)this;
 	}
 
 	// Column: updated_on INTEGER(10)
 	private long updated_on;
 
-	public long getUpdatedOn() {
+	private boolean _HaNa_dirty_updated_on;	private boolean _HaNa_selected_updated_on;	public long getUpdatedOn() {
 		return this.updated_on;
 	}
 
 	public me.geso.hana.row.Member setUpdatedOn(long value) {
 		this.updated_on = value;
-		this.dirtyColumns.add("updated_on");
+		_HaNa_dirty_updated_on = true;
 		return (me.geso.hana.row.Member)this;
 	}
 

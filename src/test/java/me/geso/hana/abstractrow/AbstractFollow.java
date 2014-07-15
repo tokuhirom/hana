@@ -39,35 +39,32 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 			switch (label) {
 			case "from_member_id":
 				this.from_member_id = rs.getLong(i);
+				this._HaNa_selected_from_member_id = true;
 				break;
 			case "to_member_id":
 				this.to_member_id = rs.getLong(i);
+				this._HaNa_selected_to_member_id = true;
 				break;
 			case "created_on":
 				this.created_on = rs.getLong(i);
+				this._HaNa_selected_created_on = true;
 				break;
 			} // switch
 		} // for
 	}
 	public me.geso.hana.row.Follow insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
-		for (String col: dirtyColumns) {
-			switch (col) {
-			case "from_member_id":
-				insert.value(col, this.getFromMemberId());
-				break;
-			case "to_member_id":
-				insert.value(col, this.getToMemberId());
-				break;
-			case "created_on":
-				insert.value(col, this.getCreatedOn());
-				break;
-			}
+		if (_HaNa_dirty_from_member_id) {
+			insert.value("from_member_id", this.getFromMemberId());
+		}
+		if (_HaNa_dirty_to_member_id) {
+			insert.value("to_member_id", this.getToMemberId());
+		}
+		if (_HaNa_dirty_created_on) {
+			insert.value("created_on", this.getCreatedOn());
 		}
 		PreparedStatement stmt = insert.build(connection).prepare(connection);
 		stmt.executeUpdate();
-		columns.addAll(dirtyColumns);
-		dirtyColumns.clear();
 		return (me.geso.hana.row.Follow)this;
 	}
 
@@ -92,6 +89,18 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 	@Override
 	public ConditionInterface condition() throws SQLException, HanaException {
 		throw new me.geso.hana.HanaNoPrimaryKeyException("follow doesn't have a primary key");	}
+	@Override
+	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {
+		if (_HaNa_dirty_from_member_id) {
+			update.set("from_member_id", this.getFromMemberId());
+		}
+		if (_HaNa_dirty_to_member_id) {
+			update.set("to_member_id", this.getToMemberId());
+		}
+		if (_HaNa_dirty_created_on) {
+			update.set("created_on", this.getCreatedOn());
+		}
+	}
        @Override
 	public String toString() {
 		return "AbstractFollow ["
@@ -103,39 +112,39 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 	// Column: from_member_id INTEGER(10)
 	private long from_member_id;
 
-	public long getFromMemberId() {
+	private boolean _HaNa_dirty_from_member_id;	private boolean _HaNa_selected_from_member_id;	public long getFromMemberId() {
 		return this.from_member_id;
 	}
 
 	public me.geso.hana.row.Follow setFromMemberId(long value) {
 		this.from_member_id = value;
-		this.dirtyColumns.add("from_member_id");
+		_HaNa_dirty_from_member_id = true;
 		return (me.geso.hana.row.Follow)this;
 	}
 
 	// Column: to_member_id INTEGER(10)
 	private long to_member_id;
 
-	public long getToMemberId() {
+	private boolean _HaNa_dirty_to_member_id;	private boolean _HaNa_selected_to_member_id;	public long getToMemberId() {
 		return this.to_member_id;
 	}
 
 	public me.geso.hana.row.Follow setToMemberId(long value) {
 		this.to_member_id = value;
-		this.dirtyColumns.add("to_member_id");
+		_HaNa_dirty_to_member_id = true;
 		return (me.geso.hana.row.Follow)this;
 	}
 
 	// Column: created_on INTEGER(10)
 	private long created_on=Instant.now().getEpochSecond();
 
-	public long getCreatedOn() {
+	private boolean _HaNa_dirty_created_on;	private boolean _HaNa_selected_created_on;	public long getCreatedOn() {
 		return this.created_on;
 	}
 
 	public me.geso.hana.row.Follow setCreatedOn(long value) {
 		this.created_on = value;
-		this.dirtyColumns.add("created_on");
+		_HaNa_dirty_created_on = true;
 		return (me.geso.hana.row.Follow)this;
 	}
 

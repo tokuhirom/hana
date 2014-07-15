@@ -39,52 +39,52 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 			switch (label) {
 			case "id":
 				this.id = rs.getLong(i);
+				this._HaNa_selected_id = true;
 				break;
 			case "entry_id":
 				this.entry_id = rs.getLong(i);
+				this._HaNa_selected_entry_id = true;
 				break;
 			case "body":
 				this.body = rs.getString(i);
+				this._HaNa_selected_body = true;
 				break;
 			case "data":
 				this.data = rs.getBlob(i+1);
+				this._HaNa_selected_data = true;
 				break;
 			case "created_on":
 				this.created_on = rs.getLong(i);
+				this._HaNa_selected_created_on = true;
 				break;
 			} // switch
 		} // for
 	}
 	public me.geso.hana.row.Comment insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
-		for (String col: dirtyColumns) {
-			switch (col) {
-			case "id":
-				insert.value(col, this.getId());
-				break;
-			case "entry_id":
-				insert.value(col, this.getEntryId());
-				break;
-			case "body":
-				insert.value(col, this.getBody());
-				break;
-			case "data":
-				insert.value(col, this.getData());
-				break;
-			case "created_on":
-				insert.value(col, this.getCreatedOn());
-				break;
-			}
+		if (_HaNa_dirty_id) {
+			insert.value("id", this.getId());
+		}
+		if (_HaNa_dirty_entry_id) {
+			insert.value("entry_id", this.getEntryId());
+		}
+		if (_HaNa_dirty_body) {
+			insert.value("body", this.getBody());
+		}
+		if (_HaNa_dirty_data) {
+			insert.value("data", this.getData());
+		}
+		if (_HaNa_dirty_created_on) {
+			insert.value("created_on", this.getCreatedOn());
 		}
 		PreparedStatement stmt = insert.build(connection).prepare(connection);
 		stmt.execute();
 		try (ResultSet rs = stmt.getGeneratedKeys();) {
 			if (rs.next()) {
-				this.setId(rs.getInt(1));
+				this.setId(rs.getLong(1));
+				this._HaNa_selected_id = true;
 			}
 		}
-		columns.addAll(dirtyColumns);
-		dirtyColumns.clear();
 		return (me.geso.hana.row.Comment)this;
 	}
 
@@ -122,15 +122,31 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 ;	}
 	@Override
 	public ConditionInterface condition() throws SQLException, HanaException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk))) {
-					throw new HanaException("The row doesn't contain primary key; " + pk);			}
+		if (!this._HaNa_selected_id) {
+				throw new HanaException("The row doesn't contain *selected* primary key: id");
 		}
 
 		ConditionInterface condition = null;
 		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id", this.getId()));
 		return condition;
+	}
+	@Override
+	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {
+		if (_HaNa_dirty_id) {
+			update.set("id", this.getId());
+		}
+		if (_HaNa_dirty_entry_id) {
+			update.set("entry_id", this.getEntryId());
+		}
+		if (_HaNa_dirty_body) {
+			update.set("body", this.getBody());
+		}
+		if (_HaNa_dirty_data) {
+			update.set("data", this.getData());
+		}
+		if (_HaNa_dirty_created_on) {
+			update.set("created_on", this.getCreatedOn());
+		}
 	}
        @Override
 	public String toString() {
@@ -145,65 +161,65 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 	// Column: id INTEGER(10)
 	private long id;
 
-	public long getId() {
+	private boolean _HaNa_dirty_id;	private boolean _HaNa_selected_id;	public long getId() {
 		return this.id;
 	}
 
 	public me.geso.hana.row.Comment setId(long value) {
 		this.id = value;
-		this.dirtyColumns.add("id");
+		_HaNa_dirty_id = true;
 		return (me.geso.hana.row.Comment)this;
 	}
 
 	// Column: entry_id INTEGER(10)
 	private long entry_id;
 
-	public long getEntryId() {
+	private boolean _HaNa_dirty_entry_id;	private boolean _HaNa_selected_entry_id;	public long getEntryId() {
 		return this.entry_id;
 	}
 
 	public me.geso.hana.row.Comment setEntryId(long value) {
 		this.entry_id = value;
-		this.dirtyColumns.add("entry_id");
+		_HaNa_dirty_entry_id = true;
 		return (me.geso.hana.row.Comment)this;
 	}
 
 	// Column: body VARCHAR(255)
 	private String body;
 
-	public String getBody() {
+	private boolean _HaNa_dirty_body;	private boolean _HaNa_selected_body;	public String getBody() {
 		return this.body;
 	}
 
 	public me.geso.hana.row.Comment setBody(String value) {
 		this.body = value;
-		this.dirtyColumns.add("body");
+		_HaNa_dirty_body = true;
 		return (me.geso.hana.row.Comment)this;
 	}
 
 	// Column: data BLOB(2147483647)
 	private Blob data;
 
-	public Blob getData() {
+	private boolean _HaNa_dirty_data;	private boolean _HaNa_selected_data;	public Blob getData() {
 		return this.data;
 	}
 
 	public me.geso.hana.row.Comment setData(Blob value) {
 		this.data = value;
-		this.dirtyColumns.add("data");
+		_HaNa_dirty_data = true;
 		return (me.geso.hana.row.Comment)this;
 	}
 
 	// Column: created_on INTEGER(10)
 	private long created_on=Instant.now().getEpochSecond();
 
-	public long getCreatedOn() {
+	private boolean _HaNa_dirty_created_on;	private boolean _HaNa_selected_created_on;	public long getCreatedOn() {
 		return this.created_on;
 	}
 
 	public me.geso.hana.row.Comment setCreatedOn(long value) {
 		this.created_on = value;
-		this.dirtyColumns.add("created_on");
+		_HaNa_dirty_created_on = true;
 		return (me.geso.hana.row.Comment)this;
 	}
 

@@ -39,41 +39,39 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 			switch (label) {
 			case "id1":
 				this.id1 = rs.getLong(i);
+				this._HaNa_selected_id1 = true;
 				break;
 			case "id2":
 				this.id2 = rs.getLong(i);
+				this._HaNa_selected_id2 = true;
 				break;
 			case "title":
 				this.title = rs.getString(i);
+				this._HaNa_selected_title = true;
 				break;
 			case "email":
 				this.email = rs.getString(i);
+				this._HaNa_selected_email = true;
 				break;
 			} // switch
 		} // for
 	}
 	public me.geso.hana.row.MultiPkSample insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
-		for (String col: dirtyColumns) {
-			switch (col) {
-			case "id1":
-				insert.value(col, this.getId1());
-				break;
-			case "id2":
-				insert.value(col, this.getId2());
-				break;
-			case "title":
-				insert.value(col, this.getTitle());
-				break;
-			case "email":
-				insert.value(col, this.getEmail());
-				break;
-			}
+		if (_HaNa_dirty_id1) {
+			insert.value("id1", this.getId1());
+		}
+		if (_HaNa_dirty_id2) {
+			insert.value("id2", this.getId2());
+		}
+		if (_HaNa_dirty_title) {
+			insert.value("title", this.getTitle());
+		}
+		if (_HaNa_dirty_email) {
+			insert.value("email", this.getEmail());
 		}
 		PreparedStatement stmt = insert.build(connection).prepare(connection);
 		stmt.executeUpdate();
-		columns.addAll(dirtyColumns);
-		dirtyColumns.clear();
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 
@@ -110,16 +108,32 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 ;	}
 	@Override
 	public ConditionInterface condition() throws SQLException, HanaException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk))) {
-					throw new HanaException("The row doesn't contain primary key; " + pk);			}
+		if (!this._HaNa_selected_id1) {
+				throw new HanaException("The row doesn't contain *selected* primary key: id1");
+		}
+		if (!this._HaNa_selected_id2) {
+				throw new HanaException("The row doesn't contain *selected* primary key: id2");
 		}
 
 		ConditionInterface condition = null;
 		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id1", this.getId1()));
 		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id2", this.getId2()));
 		return condition;
+	}
+	@Override
+	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {
+		if (_HaNa_dirty_id1) {
+			update.set("id1", this.getId1());
+		}
+		if (_HaNa_dirty_id2) {
+			update.set("id2", this.getId2());
+		}
+		if (_HaNa_dirty_title) {
+			update.set("title", this.getTitle());
+		}
+		if (_HaNa_dirty_email) {
+			update.set("email", this.getEmail());
+		}
 	}
        @Override
 	public String toString() {
@@ -133,52 +147,52 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 	// Column: id1 INTEGER(10)
 	private long id1;
 
-	public long getId1() {
+	private boolean _HaNa_dirty_id1;	private boolean _HaNa_selected_id1;	public long getId1() {
 		return this.id1;
 	}
 
 	public me.geso.hana.row.MultiPkSample setId1(long value) {
 		this.id1 = value;
-		this.dirtyColumns.add("id1");
+		_HaNa_dirty_id1 = true;
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 
 	// Column: id2 INTEGER(10)
 	private long id2;
 
-	public long getId2() {
+	private boolean _HaNa_dirty_id2;	private boolean _HaNa_selected_id2;	public long getId2() {
 		return this.id2;
 	}
 
 	public me.geso.hana.row.MultiPkSample setId2(long value) {
 		this.id2 = value;
-		this.dirtyColumns.add("id2");
+		_HaNa_dirty_id2 = true;
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 
 	// Column: title VARCHAR(255)
 	private String title;
 
-	public String getTitle() {
+	private boolean _HaNa_dirty_title;	private boolean _HaNa_selected_title;	public String getTitle() {
 		return this.title;
 	}
 
 	public me.geso.hana.row.MultiPkSample setTitle(String value) {
 		this.title = value;
-		this.dirtyColumns.add("title");
+		_HaNa_dirty_title = true;
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 
 	// Column: email VARCHAR(255)
 	private String email;
 
-	public String getEmail() {
+	private boolean _HaNa_dirty_email;	private boolean _HaNa_selected_email;	public String getEmail() {
 		return this.email;
 	}
 
 	public me.geso.hana.row.MultiPkSample setEmail(String value) {
 		this.email = value;
-		this.dirtyColumns.add("email");
+		_HaNa_dirty_email = true;
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 

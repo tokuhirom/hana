@@ -39,58 +39,59 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 			switch (label) {
 			case "id":
 				this.id = rs.getLong(i);
+				this._HaNa_selected_id = true;
 				break;
 			case "title":
 				this.title = rs.getString(i);
+				this._HaNa_selected_title = true;
 				break;
 			case "url":
 				this.url = rs.getString(i);
+				this._HaNa_selected_url = true;
 				break;
 			case "member_id":
 				this.member_id = rs.getLong(i);
+				this._HaNa_selected_member_id = true;
 				break;
 			case "created_on":
 				this.created_on = rs.getLong(i);
+				this._HaNa_selected_created_on = true;
 				break;
 			case "updated_on":
 				this.updated_on = rs.getLong(i);
+				this._HaNa_selected_updated_on = true;
 				break;
 			} // switch
 		} // for
 	}
 	public me.geso.hana.row.Blog insert(Connection connection) throws SQLException, HanaException {
 		Insert insert = Insert.into(this.getTableName());
-		for (String col: dirtyColumns) {
-			switch (col) {
-			case "id":
-				insert.value(col, this.getId());
-				break;
-			case "title":
-				insert.value(col, this.getTitle());
-				break;
-			case "url":
-				insert.value(col, this.getUrl());
-				break;
-			case "member_id":
-				insert.value(col, this.getMemberId());
-				break;
-			case "created_on":
-				insert.value(col, this.getCreatedOn());
-				break;
-			case "updated_on":
-				insert.value(col, this.getUpdatedOn());
-				break;
-			}
+		if (_HaNa_dirty_id) {
+			insert.value("id", this.getId());
+		}
+		if (_HaNa_dirty_title) {
+			insert.value("title", this.getTitle());
+		}
+		if (_HaNa_dirty_url) {
+			insert.value("url", this.getUrl());
+		}
+		if (_HaNa_dirty_member_id) {
+			insert.value("member_id", this.getMemberId());
+		}
+		if (_HaNa_dirty_created_on) {
+			insert.value("created_on", this.getCreatedOn());
+		}
+		if (_HaNa_dirty_updated_on) {
+			insert.value("updated_on", this.getUpdatedOn());
 		}
 		PreparedStatement stmt = insert.build(connection).prepare(connection);
 		stmt.execute();
 		try (ResultSet rs = stmt.getGeneratedKeys();) {
 			if (rs.next()) {
-				this.setId(rs.getInt(1));
+				this.setId(rs.getLong(1));
+				this._HaNa_selected_id = true;
 			}
 		}
-		columns.addAll(dirtyColumns);
-		dirtyColumns.clear();
 		return (me.geso.hana.row.Blog)this;
 	}
 
@@ -130,15 +131,34 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 ;	}
 	@Override
 	public ConditionInterface condition() throws SQLException, HanaException {
-		List<String> primaryKeys = this.getPrimaryKeys();
-		for (String pk : primaryKeys) {
-			if (!(this.columns.contains(pk))) {
-					throw new HanaException("The row doesn't contain primary key; " + pk);			}
+		if (!this._HaNa_selected_id) {
+				throw new HanaException("The row doesn't contain *selected* primary key: id");
 		}
 
 		ConditionInterface condition = null;
 		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id", this.getId()));
 		return condition;
+	}
+	@Override
+	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {
+		if (_HaNa_dirty_id) {
+			update.set("id", this.getId());
+		}
+		if (_HaNa_dirty_title) {
+			update.set("title", this.getTitle());
+		}
+		if (_HaNa_dirty_url) {
+			update.set("url", this.getUrl());
+		}
+		if (_HaNa_dirty_member_id) {
+			update.set("member_id", this.getMemberId());
+		}
+		if (_HaNa_dirty_created_on) {
+			update.set("created_on", this.getCreatedOn());
+		}
+		if (_HaNa_dirty_updated_on) {
+			update.set("updated_on", this.getUpdatedOn());
+		}
 	}
        @Override
 	public String toString() {
@@ -154,78 +174,78 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 	// Column: id INTEGER(10)
 	private long id;
 
-	public long getId() {
+	private boolean _HaNa_dirty_id;	private boolean _HaNa_selected_id;	public long getId() {
 		return this.id;
 	}
 
 	public me.geso.hana.row.Blog setId(long value) {
 		this.id = value;
-		this.dirtyColumns.add("id");
+		_HaNa_dirty_id = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 
 	// Column: title VARCHAR(255)
 	private String title;
 
-	public String getTitle() {
+	private boolean _HaNa_dirty_title;	private boolean _HaNa_selected_title;	public String getTitle() {
 		return this.title;
 	}
 
 	public me.geso.hana.row.Blog setTitle(String value) {
 		this.title = value;
-		this.dirtyColumns.add("title");
+		_HaNa_dirty_title = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 
 	// Column: url VARCHAR(65535)
 	private String url;
 
-	public String getUrl() {
+	private boolean _HaNa_dirty_url;	private boolean _HaNa_selected_url;	public String getUrl() {
 		return this.url;
 	}
 
 	public me.geso.hana.row.Blog setUrl(String value) {
 		this.url = value;
-		this.dirtyColumns.add("url");
+		_HaNa_dirty_url = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 
 	// Column: member_id INTEGER(10)
 	private long member_id;
 
-	public long getMemberId() {
+	private boolean _HaNa_dirty_member_id;	private boolean _HaNa_selected_member_id;	public long getMemberId() {
 		return this.member_id;
 	}
 
 	public me.geso.hana.row.Blog setMemberId(long value) {
 		this.member_id = value;
-		this.dirtyColumns.add("member_id");
+		_HaNa_dirty_member_id = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 
 	// Column: created_on INTEGER(10)
 	private long created_on=Instant.now().getEpochSecond();
 
-	public long getCreatedOn() {
+	private boolean _HaNa_dirty_created_on;	private boolean _HaNa_selected_created_on;	public long getCreatedOn() {
 		return this.created_on;
 	}
 
 	public me.geso.hana.row.Blog setCreatedOn(long value) {
 		this.created_on = value;
-		this.dirtyColumns.add("created_on");
+		_HaNa_dirty_created_on = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 
 	// Column: updated_on INTEGER(10)
 	private long updated_on;
 
-	public long getUpdatedOn() {
+	private boolean _HaNa_dirty_updated_on;	private boolean _HaNa_selected_updated_on;	public long getUpdatedOn() {
 		return this.updated_on;
 	}
 
 	public me.geso.hana.row.Blog setUpdatedOn(long value) {
 		this.updated_on = value;
-		this.dirtyColumns.add("updated_on");
+		_HaNa_dirty_updated_on = true;
 		return (me.geso.hana.row.Blog)this;
 	}
 

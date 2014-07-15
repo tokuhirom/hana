@@ -128,6 +128,14 @@ public class Configuration {
 		}
 	}
 
+	public String generateDirtyFlagName(String name) {
+		return "_HaNa_dirty_" + name;
+	}
+
+	public String generateSelectedFlagName(String name) {
+		return "_HaNa_selected_" + name;
+	}
+
 	static class TypeDetail {
 
 		public final String javaType;

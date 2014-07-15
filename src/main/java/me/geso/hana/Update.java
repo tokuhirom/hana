@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class Update {
 
 	private final String table;
-	private final Map<String, String> set = new TreeMap<>();
+	private final Map<String, Object> set = new TreeMap<>();
 	private ConditionInterface condition = null;
 
 	public Update(String table) {
@@ -34,7 +34,7 @@ public class Update {
 	 * @param value
 	 * @return Object itself. You can use method chaining.
 	 */
-	public Update set(String column, String value) {
+	public Update set(String column, Object value) {
 		set.put(column, value);
 		return this;
 	}

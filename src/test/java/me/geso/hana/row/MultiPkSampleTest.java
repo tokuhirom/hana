@@ -38,7 +38,7 @@ public class MultiPkSampleTest extends TestBase {
 		final MultiPkSample m21 = new MultiPkSample().setId1(2).setId2(1).setTitle("21").setEmail("foo@example.com").insert(conn);
 		final MultiPkSample m22 = new MultiPkSample().setId1(2).setId2(2).setTitle("22").setEmail("foo@example.com").insert(conn);
 		final MultiPkSample m23 = new MultiPkSample().setId1(2).setId2(3).setTitle("23").setEmail("foo@example.com").insert(conn);
-		m12.delete(conn);
+		m12.refetch(conn).get().delete(conn);
 		assertEquals(false, m12.refetch(conn).isPresent());
 		assertEquals(true, m13.refetch(conn).isPresent());
 		assertEquals(true, m21.refetch(conn).isPresent());
@@ -52,7 +52,7 @@ public class MultiPkSampleTest extends TestBase {
 		final MultiPkSample m13 = new MultiPkSample().setId1(1).setId2(3).setTitle("13").setEmail("foo@example.com").insert(conn);
 		final MultiPkSample m21 = new MultiPkSample().setId1(2).setId2(1).setTitle("21").setEmail("foo@example.com").insert(conn);
 		final MultiPkSample m23 = new MultiPkSample().setId1(2).setId2(3).setTitle("23").setEmail("foo@example.com").insert(conn);
-		m12.setTitle("hoge").setEmail("bar@example.com").update(conn);
+		m12.refetch(conn).get().setTitle("hoge").setEmail("bar@example.com").update(conn);
 		assertEquals("hoge", m12.refetch(conn).get().getTitle());
 		assertEquals("bar@example.com", m12.refetch(conn).get().getEmail());
 		assertEquals("13", m13.refetch(conn).get().getTitle());

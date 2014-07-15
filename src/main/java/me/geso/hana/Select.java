@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import lombok.ToString;
 
 	// TODO pager support
+@ToString
 public class Select<T extends AbstractRow> {
 
 	private final String table;
@@ -18,7 +20,7 @@ public class Select<T extends AbstractRow> {
 	private final Class<T> klass;
 	private ConditionInterface condition = null;
 
-	public Select(Class<T> klass) {
+	Select(Class<T> klass) {
 		this.table = AbstractRow.getTableName(klass);
 		this.klass = klass;
 	}

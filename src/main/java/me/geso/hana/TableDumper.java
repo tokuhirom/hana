@@ -17,6 +17,7 @@ import java.sql.SQLException;
  */
 public class TableDumper {
 	// TODO: Dump with table generator like Text::SimpleTable
+	// Should we split this from Hana?
 
 	public void dump(Connection conn, String tableName, PrintStream os) throws SQLException {
 		String sql = "SELECT * FROM " + Identifier.quote(tableName, conn.getMetaData().getIdentifierQuoteString());

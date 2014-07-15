@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import me.geso.hana.annotation.Table;
 
+// TODO We should add test case for LONGBLOB.
+// TODO We should add test case for properties_dump.
 public abstract class AbstractRow {
 
 	protected boolean inDatabase = false;
@@ -50,7 +52,6 @@ public abstract class AbstractRow {
 			throw new HanaNoPrimaryKeyException("" + AbstractRow.getTableName(this.getClass()) + " does not have a primary keys. You can't delete this row from row object.");
 		}
 
-		// TODO test multiple column pk.
 		Update update = new Update(AbstractRow.getTableName(this.getClass()));
 		this.setUpdateParameters(update);
 		update.where(this.condition());

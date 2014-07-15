@@ -11,15 +11,19 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.ToString;
 
-	// TODO pager support
+// TODO pager support
+// TODO support innerJoin?
+// TODO support leftOuterJoin?
 @ToString
 public class Select<T extends AbstractRow> {
 
 	private final String table;
 	private String orderBy = null;
 	private Long limit = null;
+	private Long offset = null;
 	private final Class<T> klass;
-	private ConditionInterface condition = null;
+	private ConditionInterface where = null;
+	private ConditionInterface having = null;
 
 	Select(Class<T> klass) {
 		this.table = AbstractRow.getTableName(klass);
@@ -67,6 +71,17 @@ public class Select<T extends AbstractRow> {
 	}
 
 	/**
+	 * Set OFFSET clause.
+	 *
+	 * @param offset
+	 * @return self
+	 */
+	public Select<T> offset(long offset) {
+		this.offset = offset;
+		return this;
+	}
+
+	/**
 	 * Set condition to WHERE clause. If the statement has a where clause, it makes AND clause.
 	 *
 	 * <pre>
@@ -80,10 +95,35 @@ public class Select<T extends AbstractRow> {
 	 * @return
 	 */
 	public Select<T> where(ConditionInterface condition) {
-		if (this.condition != null) {
-			this.condition = this.condition.and(condition);
+		if (this.where != null) {
+			this.where = this.where.and(condition);
 		} else {
-			this.condition = condition;
+			this.where = condition;
+		}
+		return this;
+	}
+
+	// TODO support `HAVING COUNT(*) > 3`... In current implementation, eq() quotes automatically.
+	/**
+	 * Set HAVING clause.
+	 *
+	 * If the object has HAVING clause already, Hana make these 2 condition in AND expression.
+	 *
+	 * <pre>
+	 * 	Select.from("member").having(eq("email", email)).having(eq("status", 2)).build(conn)
+	 * </pre> makes
+	 * <pre>
+	 * 	SELECT * FROM member HAVING email=? AND status=?
+	 * </pre>
+	 *
+	 * @param condition
+	 * @return
+	 */
+	public Select<T> having(ConditionInterface condition) {
+		if (this.having != null) {
+			this.having = this.having.and(condition);
+		} else {
+			this.having = condition;
 		}
 		return this;
 	}
@@ -125,19 +165,34 @@ public class Select<T extends AbstractRow> {
 		StringBuilder buf = new StringBuilder();
 		buf.append("SELECT * FROM ");
 		buf.append(Identifier.quote(table, identifierQuoteString));
-		if (condition != null) {
+		if (where != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm(identifierQuoteString));
+			buf.append(where.getTerm(identifierQuoteString));
 		}
 		if (orderBy != null) {
 			buf.append(" ORDER BY ");
 			buf.append(orderBy);
 		}
+		if (having != null) {
+			buf.append(" HAVING ");
+			buf.append(having.getTerm(identifierQuoteString));
+		}
+		// It may not work on oracle. But I don't have a Oracle server! Patches welcome.
 		if (limit != null) {
 			buf.append(" LIMIT ");
 			buf.append(limit);
 		}
-		List<Object> params = (condition == null) ? new ArrayList<>() : condition.getParams();
+		if (offset != null) {
+			buf.append(" OFFSET ");
+			buf.append(offset);
+		}
+		List<Object> params = new ArrayList<>();
+		if (where != null) {
+			params.addAll(where.getParams());
+		}
+		if (having != null) {
+			params.addAll(having.getParams());
+		}
 		return new Query(buf.toString(), params);
 	}
 

@@ -63,11 +63,43 @@ public class SelectTest extends TestBase {
 	}
 
 	@Test
+	public void testHaving() throws SQLException {
+		assertEquals("SELECT * FROM \"member\"", Select.from(Member.class).build(conn).getQuery());
+		assertEquals("SELECT * FROM \"member\" WHERE \"status\"=? HAVING \"id\"=?",
+				Select.from(Member.class)
+				.where(eq("status", 3))
+				.having(eq("id", 1))
+				.build(conn)
+				.getQuery());
+		assertEquals("SELECT * FROM \"member\" HAVING \"id\"=?",
+				Select.from(Member.class)
+				.having(eq("id", 1))
+				.build(conn)
+				.getQuery());
+		assertEquals("SELECT * FROM \"member\" HAVING (( \"id\"=? ) AND ( \"status\">? ))",
+				Select.from(Member.class)
+				.having(eq("id", 1))
+				.having(gt("status", 3))
+				.build(conn)
+				.getQuery());
+	}
+
+	@Test
 	public void testCount() throws Exception {
 		new Member().setEmail("foo@example.com").insert(conn);
 		assertEquals(1, Select.from(Member.class).count(conn));
 		new Member().setEmail("bar@example.com").insert(conn);
 		assertEquals(2, Select.from(Member.class).count(conn));
+	}
+
+	@Test
+	public void testOffset() throws SQLException {
+		assertEquals("SELECT * FROM \"member\" LIMIT 30 OFFSET 10",
+				Select.from(Member.class)
+				.limit(30)
+				.offset(10)
+				.build(conn)
+				.getQuery());
 	}
 
 }

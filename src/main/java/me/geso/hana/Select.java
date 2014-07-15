@@ -17,6 +17,7 @@ public class Select<T extends AbstractRow> {
 
 	private final String table;
 	private String orderBy = null;
+	private Long limit = null;
 	private final Class<T> klass;
 	private ConditionInterface condition = null;
 
@@ -51,6 +52,17 @@ public class Select<T extends AbstractRow> {
 	 */
 	public Select<T> orderBy(String orderBy) {
 		this.orderBy = orderBy;
+		return this;
+	}
+
+	/**
+	 * Set LIMIT clause.
+	 *
+	 * @param limit
+	 * @return self
+	 */
+	public Select<T> limit(long limit) {
+		this.limit = limit;
 		return this;
 	}
 
@@ -120,6 +132,10 @@ public class Select<T extends AbstractRow> {
 		if (orderBy != null) {
 			buf.append(" ORDER BY ");
 			buf.append(orderBy);
+		}
+		if (limit != null) {
+			buf.append(" LIMIT ");
+			buf.append(limit);
 		}
 		List<Object> params = (condition == null) ? new ArrayList<>() : condition.getParams();
 		return new Query(buf.toString(), params);

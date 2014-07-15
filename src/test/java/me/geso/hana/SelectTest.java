@@ -38,6 +38,15 @@ public class SelectTest extends TestBase {
 	}
 
 	@Test
+	public void testLimit() throws SQLException {
+		assertEquals("SELECT * FROM \"member\" LIMIT 30",
+				Select.from(Member.class)
+				.limit(30)
+				.build(conn)
+				.getQuery());
+	}
+
+	@Test
 	public void testWhere() throws SQLException {
 		assertEquals("SELECT * FROM \"member\"", Select.from(Member.class).build(conn).getQuery());
 		assertEquals("SELECT * FROM \"member\" WHERE \"id\"=?",

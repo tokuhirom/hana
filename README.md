@@ -24,9 +24,9 @@ Or just put `:log4jdbc:` in JDBC dsn:
 
     "jdbc:log4jdbc:h2:mem:test;DATABASE_TO_UPPER=FALSE"
 
-#### With JDBC Driver
+#### With JDBC Driver's feature
 
-On h2, you can write a JDBC driver.
+On h2, you can use `TRACE_LEVEL_SYSTEM_OUT` option. Then, h2 shows SQL to console.
 
      jdbc:h2:mem:test;TRACE_LEVEL_FIlE=4;TRACE_LEVEL_SYSTEM_OUT=3
 

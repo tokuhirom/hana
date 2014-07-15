@@ -88,25 +88,6 @@ public abstract class AbstractComment extends me.geso.hana.AbstractRow {
 		return (me.geso.hana.row.Comment)this;
 	}
 
-	@Override
-	public String getColumn(String column) throws SQLException, HanaException {
-		switch (column) {
-			case "id":
-				return String.valueOf(this.id);
-			case "entry_id":
-				return String.valueOf(this.entry_id);
-			case "body":
-				return String.valueOf(this.body);
-			case "data":
-				return String.valueOf(this.data);
-			case "created_on":
-				return String.valueOf(this.created_on);
-		default:
-			throw new HanaException("Unknown column: " + column);
-		}
-	}
-
-
 	public static Optional<me.geso.hana.row.Comment> find(Connection connection, long id) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Comment.class)
 		.where(me.geso.hana.Condition.eq("id", id))

@@ -75,23 +75,6 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 		return (me.geso.hana.row.MultiPkSample)this;
 	}
 
-	@Override
-	public String getColumn(String column) throws SQLException, HanaException {
-		switch (column) {
-			case "id1":
-				return String.valueOf(this.id1);
-			case "id2":
-				return String.valueOf(this.id2);
-			case "title":
-				return String.valueOf(this.title);
-			case "email":
-				return String.valueOf(this.email);
-		default:
-			throw new HanaException("Unknown column: " + column);
-		}
-	}
-
-
 	public static Optional<me.geso.hana.row.MultiPkSample> find(Connection connection, long id1, long id2) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.MultiPkSample.class)
 		.where(me.geso.hana.Condition.eq("id1", id1))

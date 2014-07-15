@@ -95,27 +95,6 @@ public abstract class AbstractBlog extends me.geso.hana.AbstractRow {
 		return (me.geso.hana.row.Blog)this;
 	}
 
-	@Override
-	public String getColumn(String column) throws SQLException, HanaException {
-		switch (column) {
-			case "id":
-				return String.valueOf(this.id);
-			case "title":
-				return String.valueOf(this.title);
-			case "url":
-				return String.valueOf(this.url);
-			case "member_id":
-				return String.valueOf(this.member_id);
-			case "created_on":
-				return String.valueOf(this.created_on);
-			case "updated_on":
-				return String.valueOf(this.updated_on);
-		default:
-			throw new HanaException("Unknown column: " + column);
-		}
-	}
-
-
 	public static Optional<me.geso.hana.row.Blog> find(Connection connection, long id) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Blog.class)
 		.where(me.geso.hana.Condition.eq("id", id))

@@ -81,23 +81,6 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 		return (me.geso.hana.row.Member)this;
 	}
 
-	@Override
-	public String getColumn(String column) throws SQLException, HanaException {
-		switch (column) {
-			case "id":
-				return String.valueOf(this.id);
-			case "email":
-				return String.valueOf(this.email);
-			case "created_on":
-				return String.valueOf(this.created_on);
-			case "updated_on":
-				return String.valueOf(this.updated_on);
-		default:
-			throw new HanaException("Unknown column: " + column);
-		}
-	}
-
-
 	public static Optional<me.geso.hana.row.Member> find(Connection connection, long id) throws SQLException, HanaException {
 		return Select.from(me.geso.hana.row.Member.class)
 		.where(me.geso.hana.Condition.eq("id", id))

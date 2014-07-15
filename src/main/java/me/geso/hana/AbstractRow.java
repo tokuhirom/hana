@@ -67,10 +67,6 @@ public abstract class AbstractRow {
 
 	abstract public ConditionInterface condition() throws HanaException, SQLException;
 
-	// TODO remove me.
-	@Deprecated
-	abstract protected String getColumn(String column) throws SQLException, HanaException;
-
 	abstract public String getTableName();
 
 	abstract public List<String> getPrimaryKeys();

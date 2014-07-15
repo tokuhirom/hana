@@ -68,21 +68,6 @@ public abstract class AbstractFollow extends me.geso.hana.AbstractRow {
 		return (me.geso.hana.row.Follow)this;
 	}
 
-	@Override
-	public String getColumn(String column) throws SQLException, HanaException {
-		switch (column) {
-			case "from_member_id":
-				return String.valueOf(this.from_member_id);
-			case "to_member_id":
-				return String.valueOf(this.to_member_id);
-			case "created_on":
-				return String.valueOf(this.created_on);
-		default:
-			throw new HanaException("Unknown column: " + column);
-		}
-	}
-
-
 	public static long count(Connection connection) throws SQLException, HanaException {
 		return Select.from(AbstractFollow.class).count(connection)
 ;	}

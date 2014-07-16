@@ -52,7 +52,7 @@ public class AbstractRowClassGenerator extends Renderer {
 		append("\n");
 		append("import me.geso.hana.annotation.Table;\n");
 		append("import me.geso.hana.Insert;\n");
-		append("import me.geso.hana.ConditionInterface;\n");
+		append("import me.geso.hana.Criteria;\n");
 		append("import me.geso.hana.HanaException;\n");
 		append("import me.geso.hana.Select;\n");
 		append("\n");
@@ -73,7 +73,7 @@ public class AbstractRowClassGenerator extends Renderer {
 			renderRefetch(table);
 		}
 		renderCount(table);
-		renderCondition(table);
+		renderCriteria(table);
 		renderSetUpdate(table);
 		renderToString(table);
 
@@ -210,10 +210,10 @@ public class AbstractRowClassGenerator extends Renderer {
 		appendf("	}\n");
 	}
 
-	private void renderCondition(Table table) throws SQLException {
+	private void renderCriteria(Table table) throws SQLException {
 		List<PrimaryKey> primaryKeys = table.getPrimaryKeys();
 		appendf("	@Override\n");
-		appendf("	public ConditionInterface condition() throws SQLException, HanaException {\n");
+		appendf("	public Criteria criteria() throws SQLException, HanaException {\n");
 		if (primaryKeys.isEmpty()) {
 			appendf("		throw new me.geso.hana.HanaNoPrimaryKeyException(\"%s doesn't have a primary key\");",
 					table.getName());
@@ -225,12 +225,12 @@ public class AbstractRowClassGenerator extends Renderer {
 				appendf("		}\n");
 			});
 			appendf("\n");
-			appendf("		ConditionInterface condition = null;\n");
+			appendf("		Criteria criteria = null;\n");
 			primaryKeys.stream().map(e -> e.getColumnName()).forEach(column -> {
-				appendf("		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq(\"%s\", this.%s()));\n",
+				appendf("		criteria = me.geso.hana.Condition.and(criteria, me.geso.hana.Condition.eq(\"%s\", this.%s()));\n",
 						column, configuration.generateGetterName(column));
 			});
-			appendf("		return condition;\n");
+			appendf("		return criteria;\n");
 		}
 		appendf("	}\n");
 	}

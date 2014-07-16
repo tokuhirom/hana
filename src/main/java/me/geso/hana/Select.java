@@ -23,8 +23,8 @@ public class Select<T extends AbstractRow> implements Cloneable {
 	private Long limit = null;
 	private Long offset = null;
 	private final Class<T> klass;
-	private ConditionInterface where = null;
-	private ConditionInterface having = null;
+	private Criteria where = null;
+	private Criteria having = null;
 
 	Select(Class<T> klass) {
 		this.table = AbstractRow.getTableName(klass);
@@ -95,7 +95,7 @@ public class Select<T extends AbstractRow> implements Cloneable {
 	 * @param condition
 	 * @return
 	 */
-	public Select<T> where(ConditionInterface condition) {
+	public Select<T> where(Criteria condition) {
 		if (this.where != null) {
 			this.where = this.where.and(condition);
 		} else {
@@ -120,7 +120,7 @@ public class Select<T extends AbstractRow> implements Cloneable {
 	 * @param condition
 	 * @return
 	 */
-	public Select<T> having(ConditionInterface condition) {
+	public Select<T> having(Criteria condition) {
 		if (this.having != null) {
 			this.having = this.having.and(condition);
 		} else {

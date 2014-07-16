@@ -14,7 +14,7 @@ import me.geso.hana.Condition.OrCondition;
  *
  * @author Tokuhiro Matsuno <tokuhirom@gmail.com>
  */
-public interface ConditionInterface {
+public interface Criteria {
 
 	public String getTerm(String identifierQuoteString);
 
@@ -28,7 +28,7 @@ public interface ConditionInterface {
 	 * @param x
 	 * @return
 	 */
-	default public ConditionInterface and(ConditionInterface x) {
+	default public Criteria and(Criteria x) {
 		return new AndCondition(this, x);
 	}
 
@@ -40,7 +40,7 @@ public interface ConditionInterface {
 	 * @param x
 	 * @return
 	 */
-	default public ConditionInterface or(ConditionInterface x) {
+	default public Criteria or(Criteria x) {
 		return new OrCondition(this, x);
 	}
 

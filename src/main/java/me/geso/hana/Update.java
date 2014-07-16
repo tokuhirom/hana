@@ -21,7 +21,7 @@ public class Update {
 
 	private final String table;
 	private final Map<String, Object> set = new TreeMap<>();
-	private ConditionInterface condition = null;
+	private Criteria criteria = null;
 
 	public Update(String table) {
 		this.table = table;
@@ -42,11 +42,11 @@ public class Update {
 	/**
 	 * Set the Condition to WHERE clause.
 	 *
-	 * @param condition
+	 * @param criteria
 	 * @return Object itself.
 	 */
-	public Update where(ConditionInterface condition) {
-		this.condition = condition;
+	public Update where(Criteria criteria) {
+		this.criteria = criteria;
 		return this;
 	}
 
@@ -76,10 +76,10 @@ public class Update {
 				return Identifier.quote(column, identifierQuoteString) + "=?";
 			}
 		}).collect(Collectors.joining(",")));
-		if (condition != null) {
+		if (criteria != null) {
 			buf.append(" WHERE ");
-			buf.append(condition.getTerm(identifierQuoteString));
-			params.addAll(condition.getParams());
+			buf.append(criteria.getTerm(identifierQuoteString));
+			params.addAll(criteria.getParams());
 		}
 
 		final String sql = buf.toString();

@@ -38,7 +38,7 @@ public abstract class AbstractRow {
 	public void delete(Connection connection) throws SQLException, HanaException {
 		// Delete column from database.
 		Delete delete = Delete.from(this.getTableName());
-		delete.where(this.condition());
+		delete.where(this.criteria());
 		PreparedStatement stmt = delete.build(connection).prepare(connection);
 		int deleted = stmt.executeUpdate();
 		if (deleted != 1) {
@@ -54,7 +54,7 @@ public abstract class AbstractRow {
 
 		Update update = new Update(AbstractRow.getTableName(this.getClass()));
 		this.setUpdateParameters(update);
-		update.where(this.condition());
+		update.where(this.criteria());
 
 		Query query = update.build(connection);
 		PreparedStatement stmt = query.prepare(connection);
@@ -66,7 +66,7 @@ public abstract class AbstractRow {
 
 	abstract protected void setUpdateParameters(Update update) throws HanaException, SQLException;
 
-	abstract public ConditionInterface condition() throws HanaException, SQLException;
+	abstract public Criteria criteria() throws HanaException, SQLException;
 
 	abstract public String getTableName();
 

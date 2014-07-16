@@ -8,7 +8,7 @@ import lombok.NonNull;
 public class Delete {
 
 	private final String table;
-	private ConditionInterface condition = null;
+	private Criteria condition = null;
 	private String comment;
 
 	/**
@@ -28,7 +28,7 @@ public class Delete {
 		this.comment = comment;
 	}
 
-	public <T> Delete where(@NonNull ConditionInterface condition) throws SQLException {
+	public <T> Delete where(@NonNull Criteria condition) throws SQLException {
 		this.condition = condition;
 		return this;
 	}

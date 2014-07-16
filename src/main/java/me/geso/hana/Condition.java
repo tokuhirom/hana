@@ -24,7 +24,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static ConditionInterface eq(String column, Object value) {
+	public static Criteria eq(String column, Object value) {
 		return new EqualsCondition(column, value);
 	}
 
@@ -35,7 +35,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static ConditionInterface ne(String column, Object value) {
+	public static Criteria ne(String column, Object value) {
 		return new NotEqualsCondition(column, value);
 	}
 
@@ -47,7 +47,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> ConditionInterface gt(String column, @NonNull Value value) {
+	public static <Value> Criteria gt(String column, @NonNull Value value) {
 		return new GraterThanCondition(column, value);
 	}
 
@@ -59,7 +59,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> ConditionInterface lt(String column, @NonNull Value value) {
+	public static <Value> Criteria lt(String column, @NonNull Value value) {
 		return new LessThanCondition(column, value);
 	}
 
@@ -71,7 +71,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> ConditionInterface ge(String column, @NonNull Value value) {
+	public static <Value> Criteria ge(String column, @NonNull Value value) {
 		return new GraterThanOrEqualsCondition(column, value);
 	}
 
@@ -83,7 +83,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static <Value> ConditionInterface le(String column, @NonNull Value value) {
+	public static <Value> Criteria le(String column, @NonNull Value value) {
 		return new LessThanOrEqualsCondition(column, value);
 	}
 
@@ -97,7 +97,7 @@ public class Condition {
 	 * @param values
 	 * @return
 	 */
-	public static <Value> ConditionInterface in(String column, @NonNull List<Object> values) {
+	public static <Value> Criteria in(String column, @NonNull List<Object> values) {
 		return new InCondition(column, values);
 	}
 
@@ -116,7 +116,7 @@ public class Condition {
 	 * @param values
 	 * @return
 	 */
-	public static <Value> ConditionInterface not_in(String column, @NonNull List<Object> values) {
+	public static <Value> Criteria not_in(String column, @NonNull List<Object> values) {
 		return new NotInCondition(column, values);
 	}
 
@@ -133,7 +133,7 @@ public class Condition {
 	 * @param value
 	 * @return
 	 */
-	public static ConditionInterface like(String column, String value) {
+	public static Criteria like(String column, String value) {
 		return new LikeCondition(column, value);
 	}
 
@@ -144,14 +144,14 @@ public class Condition {
 	 * @param b
 	 * @return
 	 */
-	public static ConditionInterface and(ConditionInterface a, @NonNull ConditionInterface b) {
+	public static Criteria and(Criteria a, @NonNull Criteria b) {
 		if (a == null) {
 			return b;
 		}
 		return new AndCondition(a, b);
 	}
 
-	abstract static class ListBinaryCondition implements ConditionInterface {
+	abstract static class ListBinaryCondition implements Criteria {
 
 		protected String column;
 		protected List<Object> values;
@@ -207,7 +207,7 @@ public class Condition {
 		}
 	}
 
-	abstract static class BinaryCondition implements ConditionInterface {
+	abstract static class BinaryCondition implements Criteria {
 
 		protected String lhs;
 		protected Object rhs;
@@ -230,7 +230,7 @@ public class Condition {
 		}
 	}
 
-	static class EqualsCondition extends BinaryCondition implements ConditionInterface {
+	static class EqualsCondition extends BinaryCondition implements Criteria {
 
 		public EqualsCondition(String lhs, Object rhs) {
 			super(lhs, rhs);
@@ -246,7 +246,7 @@ public class Condition {
 		}
 	}
 
-	static class NotEqualsCondition extends BinaryCondition implements ConditionInterface {
+	static class NotEqualsCondition extends BinaryCondition implements Criteria {
 
 		public NotEqualsCondition(String lhs, Object rhs) {
 			super(lhs, rhs);
@@ -262,7 +262,7 @@ public class Condition {
 		}
 	}
 
-	static class GraterThanCondition extends BinaryCondition implements ConditionInterface {
+	static class GraterThanCondition extends BinaryCondition implements Criteria {
 
 		public GraterThanCondition(String lhs, @NonNull Object rhs) {
 			super(lhs, rhs);
@@ -274,7 +274,7 @@ public class Condition {
 		}
 	}
 
-	static class LessThanCondition extends BinaryCondition implements ConditionInterface {
+	static class LessThanCondition extends BinaryCondition implements Criteria {
 
 		public LessThanCondition(String lhs, @NonNull Object rhs) {
 			super(lhs, rhs);
@@ -286,7 +286,7 @@ public class Condition {
 		}
 	}
 
-	static class GraterThanOrEqualsCondition extends BinaryCondition implements ConditionInterface {
+	static class GraterThanOrEqualsCondition extends BinaryCondition implements Criteria {
 
 		public GraterThanOrEqualsCondition(String lhs, @NonNull Object rhs) {
 			super(lhs, rhs);
@@ -298,7 +298,7 @@ public class Condition {
 		}
 	}
 
-	static class LessThanOrEqualsCondition extends BinaryCondition implements ConditionInterface {
+	static class LessThanOrEqualsCondition extends BinaryCondition implements Criteria {
 
 		public LessThanOrEqualsCondition(String lhs, @NonNull Object rhs) {
 			super(lhs, rhs);
@@ -310,7 +310,7 @@ public class Condition {
 		}
 	}
 
-	static class LikeCondition extends BinaryCondition implements ConditionInterface {
+	static class LikeCondition extends BinaryCondition implements Criteria {
 
 		public LikeCondition(String lhs, @NonNull Object rhs) {
 			super(lhs, rhs);
@@ -322,12 +322,12 @@ public class Condition {
 		}
 	}
 
-	static class OrCondition implements ConditionInterface {
+	static class OrCondition implements Criteria {
 
-		private ConditionInterface a;
-		private ConditionInterface b;
+		private Criteria a;
+		private Criteria b;
 
-		public OrCondition(@NonNull ConditionInterface a, @NonNull ConditionInterface b) {
+		public OrCondition(@NonNull Criteria a, @NonNull Criteria b) {
 			this.a = a;
 			this.b = b;
 		}
@@ -347,12 +347,12 @@ public class Condition {
 		}
 	}
 
-	static class AndCondition implements ConditionInterface {
+	static class AndCondition implements Criteria {
 
-		private ConditionInterface a;
-		private ConditionInterface b;
+		private Criteria a;
+		private Criteria b;
 
-		public AndCondition(@NonNull ConditionInterface a, @NonNull ConditionInterface b) {
+		public AndCondition(@NonNull Criteria a, @NonNull Criteria b) {
 			this.a = a;
 			this.b = b;
 		}

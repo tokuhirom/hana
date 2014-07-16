@@ -26,7 +26,7 @@ public class ConditionTest extends TestBase {
 			System.out.println("eq");
 			String column = "id";
 			Object value = 5963;
-			ConditionInterface result = Condition.eq(column, value);
+			Criteria result = Condition.eq(column, value);
 			assertEquals("id=?", result.getTerm(""));
 			assertEquals(Arrays.asList(5963), result.getParams());
 		}
@@ -34,7 +34,7 @@ public class ConditionTest extends TestBase {
 			System.out.println("eq");
 			String column = "id";
 			Object value = null;
-			ConditionInterface result = Condition.eq(column, value);
+			Criteria result = Condition.eq(column, value);
 			assertEquals("id IS NULL", result.getTerm(""));
 			assertEquals(Arrays.asList(), result.getParams());
 		}
@@ -45,14 +45,14 @@ public class ConditionTest extends TestBase {
 		{
 			String column = "id";
 			Object value = 5963;
-			ConditionInterface result = Condition.ne(column, value);
+			Criteria result = Condition.ne(column, value);
 			assertEquals("id!=?", result.getTerm(""));
 			assertEquals(Arrays.asList(5963), result.getParams());
 		}
 		{
 			String column = "id";
 			Object value = null;
-			ConditionInterface result = Condition.ne(column, value);
+			Criteria result = Condition.ne(column, value);
 			assertEquals("id IS NOT NULL", result.getTerm(""));
 			assertEquals(Arrays.asList(), result.getParams());
 		}
@@ -60,42 +60,42 @@ public class ConditionTest extends TestBase {
 
 	@Test
 	public void testGt() {
-		ConditionInterface result = Condition.gt("id", 5963);
+		Criteria result = Condition.gt("id", 5963);
 		assertEquals("id>?", result.getTerm(""));
 		assertEquals(Arrays.asList(5963), result.getParams());
 	}
 
 	@Test
 	public void testLt() {
-		ConditionInterface result = Condition.lt("id", 5963);
+		Criteria result = Condition.lt("id", 5963);
 		assertEquals("id<?", result.getTerm(""));
 		assertEquals(Arrays.asList(5963), result.getParams());
 	}
 
 	@Test
 	public void testGe() {
-		ConditionInterface result = Condition.ge("id", 5963);
+		Criteria result = Condition.ge("id", 5963);
 		assertEquals("id>=?", result.getTerm(""));
 		assertEquals(Arrays.asList(5963), result.getParams());
 	}
 
 	@Test
 	public void testLe() {
-		ConditionInterface result = Condition.le("id", 5963);
+		Criteria result = Condition.le("id", 5963);
 		assertEquals("id<=?", result.getTerm(""));
 		assertEquals(Arrays.asList(5963), result.getParams());
 	}
 
 	@Test
 	public void testAnd() {
-		ConditionInterface result = Condition.le("id", 5963).and(Condition.eq("id", 3));
+		Criteria result = Condition.le("id", 5963).and(Condition.eq("id", 3));
 		assertEquals("(( id<=? ) AND ( id=? ))", result.getTerm(""));
 		assertEquals(Arrays.asList(5963, 3), result.getParams());
 	}
 
 	@Test
 	public void testOr() {
-		ConditionInterface result = Condition.le("id", 5963).or(Condition.eq("id", 3));
+		Criteria result = Condition.le("id", 5963).or(Condition.eq("id", 3));
 		assertEquals("(( id<=? ) OR ( id=? ))", result.getTerm(""));
 		assertEquals(Arrays.asList(5963, 3), result.getParams());
 	}
@@ -108,7 +108,7 @@ public class ConditionTest extends TestBase {
 			final List<Object> values = new ArrayList();
 			values.add(5963);
 			values.add(4649);
-			ConditionInterface result = Condition.in(column, values);
+			Criteria result = Condition.in(column, values);
 			assertEquals("id IN (?,?)", result.getTerm(""));
 			assertEquals(values, result.getParams());
 		}
@@ -116,7 +116,7 @@ public class ConditionTest extends TestBase {
 			System.out.println("eq");
 			String column = "id";
 			final List<Object> values = new ArrayList();
-			ConditionInterface result = Condition.in(column, values);
+			Criteria result = Condition.in(column, values);
 			assertEquals("1=0", result.getTerm(""));
 			assertEquals(values, result.getParams());
 		}
@@ -130,7 +130,7 @@ public class ConditionTest extends TestBase {
 			final List<Object> values = new ArrayList();
 			values.add(5963);
 			values.add(4649);
-			ConditionInterface result = Condition.not_in(column, values);
+			Criteria result = Condition.not_in(column, values);
 			assertEquals("id NOT IN (?,?)", result.getTerm(""));
 			assertEquals(values, result.getParams());
 		}
@@ -138,7 +138,7 @@ public class ConditionTest extends TestBase {
 			System.out.println("eq");
 			String column = "id";
 			final List<Object> values = new ArrayList();
-			ConditionInterface result = Condition.not_in(column, values);
+			Criteria result = Condition.not_in(column, values);
 			assertEquals("1=1", result.getTerm(""));
 			assertEquals(values, result.getParams());
 		}
@@ -147,7 +147,7 @@ public class ConditionTest extends TestBase {
 	@Test
 	public void testLike() {
 		String column = "id";
-		ConditionInterface result = Condition.like(column, "hoge");
+		Criteria result = Condition.like(column, "hoge");
 		assertEquals("id LIKE ?", result.getTerm(""));
 		assertEquals(Arrays.asList("hoge"), result.getParams());
 	}
@@ -155,14 +155,14 @@ public class ConditionTest extends TestBase {
 	@Test
 	public void testGetTerm() {
 		System.out.println("getTerm");
-		ConditionInterface instance = Condition.eq("id", 3);
+		Criteria instance = Condition.eq("id", 3);
 		String result = instance.getTerm("");
 		assertEquals("id=?", result);
 	}
 
 	@Test
 	public void testGetParams() {
-		ConditionInterface instance = Condition.eq("id", 3);
+		Criteria instance = Condition.eq("id", 3);
 		List<Object> result = instance.getParams();
 		assertEquals(Arrays.asList(3), result);
 	}

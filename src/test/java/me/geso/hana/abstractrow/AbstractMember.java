@@ -15,7 +15,7 @@ import javax.annotation.Generated;
 
 import me.geso.hana.annotation.Table;
 import me.geso.hana.Insert;
-import me.geso.hana.ConditionInterface;
+import me.geso.hana.Criteria;
 import me.geso.hana.HanaException;
 import me.geso.hana.Select;
 
@@ -95,14 +95,14 @@ public abstract class AbstractMember extends me.geso.hana.AbstractRow {
 		return Select.from(AbstractMember.class).count(connection)
 ;	}
 	@Override
-	public ConditionInterface condition() throws SQLException, HanaException {
+	public Criteria criteria() throws SQLException, HanaException {
 		if (!this._HaNa_selected_id) {
 				throw new HanaException("The row doesn't contain *selected* primary key: id");
 		}
 
-		ConditionInterface condition = null;
-		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id", this.getId()));
-		return condition;
+		Criteria criteria = null;
+		criteria = me.geso.hana.Condition.and(criteria, me.geso.hana.Condition.eq("id", this.getId()));
+		return criteria;
 	}
 	@Override
 	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {

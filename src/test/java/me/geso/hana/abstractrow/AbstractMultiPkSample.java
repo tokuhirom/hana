@@ -15,7 +15,7 @@ import javax.annotation.Generated;
 
 import me.geso.hana.annotation.Table;
 import me.geso.hana.Insert;
-import me.geso.hana.ConditionInterface;
+import me.geso.hana.Criteria;
 import me.geso.hana.HanaException;
 import me.geso.hana.Select;
 
@@ -90,7 +90,7 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 		return Select.from(AbstractMultiPkSample.class).count(connection)
 ;	}
 	@Override
-	public ConditionInterface condition() throws SQLException, HanaException {
+	public Criteria criteria() throws SQLException, HanaException {
 		if (!this._HaNa_selected_id1) {
 				throw new HanaException("The row doesn't contain *selected* primary key: id1");
 		}
@@ -98,10 +98,10 @@ public abstract class AbstractMultiPkSample extends me.geso.hana.AbstractRow {
 				throw new HanaException("The row doesn't contain *selected* primary key: id2");
 		}
 
-		ConditionInterface condition = null;
-		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id1", this.getId1()));
-		condition = me.geso.hana.Condition.and(condition, me.geso.hana.Condition.eq("id2", this.getId2()));
-		return condition;
+		Criteria criteria = null;
+		criteria = me.geso.hana.Condition.and(criteria, me.geso.hana.Condition.eq("id1", this.getId1()));
+		criteria = me.geso.hana.Condition.and(criteria, me.geso.hana.Condition.eq("id2", this.getId2()));
+		return criteria;
 	}
 	@Override
 	protected void setUpdateParameters(me.geso.hana.Update update) throws HanaException, SQLException {

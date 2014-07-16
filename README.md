@@ -34,5 +34,4 @@ On h2, you can use `TRACE_LEVEL_SYSTEM_OUT` option. Then, h2 shows SQL to consol
 ## TODO
 
   * Support pagination
-  * LIMIT, OFFSET
   * Integration test with mysql

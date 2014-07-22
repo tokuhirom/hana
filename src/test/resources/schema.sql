@@ -1,0 +1,59 @@
+DROP TABLE IF EXISTS member;
+DROP TABLE IF EXISTS follow;
+DROP TABLE IF EXISTS multi_pk_sample;
+
+CREATE TABLE IF NOT EXISTS member (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255),
+    created_on INTEGER UNSIGNED,
+    updated_on INTEGER UNSIGNED
+);
+
+CREATE TABLE IF NOT EXISTS blog (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    url VARCHAR(65535),
+    member_id INTEGER UNSIGNED,
+    created_on INTEGER UNSIGNED,
+    updated_on INTEGER UNSIGNED,
+    FOREIGN KEY(member_id) REFERENCES member(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS entry (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    blog_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255),
+    created_on INTEGER UNSIGNED NOT NULL,
+    updated_on INTEGER UNSIGNED,
+    FOREIGN KEY(blog_id) REFERENCES blog(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comment (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    entry_id INT UNSIGNED NOT NULL,
+    body VARCHAR(255) DEFAULT NULL,
+    data LONGBLOB,
+    created_on INTEGER UNSIGNED,
+    FOREIGN KEY(entry_id) REFERENCES entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS multi_pk_sample (
+    id1 INTEGER UNSIGNED NOT NULL,
+    id2 INTEGER UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id1, id2)
+);
+
+CREATE TABLE IF NOT EXISTS follow (
+    from_member_id INTEGER UNSIGNED NOT NULL,
+    to_member_id INTEGER UNSIGNED NOT NULL,
+    created_on INTEGER UNSIGNED,
+    FOREIGN KEY(from_member_id) REFERENCES member(id) ON DELETE CASCADE,
+    FOREIGN KEY(to_member_id) REFERENCES member(id) ON DELETE CASCADE
+--   UNIQUE (from_member_id, to_member_id)
+--   INDEX (to_member_id)
+);
+
+CREATE UNIQUE INDEX ON follow (from_member_id, to_member_id);
+DELETE FROM member;
